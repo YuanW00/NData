@@ -7,15 +7,21 @@
 #' @import writexl
 #' @import openxlsx
 #' @import tidyverse
-#' @param Standard The formula file that is exported from SCIEX OS template and saved as .xlsx
-#' @param Test The formula file that is exported from SCIEX OS analyte and saved as .xlsx
-#' @return Printed the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file
+#' @param standard_path The directory stored the standard SCIEX OS formula .xlsx file. There is a default setting.
+#' @param test_path The directory stored the analyte SCIEX OS formula .xlsx file. There is a default setting.
+#' @param output_path The directory to store the comparison result. There is a default setting.
+#' @param Standard The formula file that is exported from SCIEX OS template and saved as .xlsx.
+#' @param Test The formula file that is exported from SCIEX OS analyte and saved as .xlsx.
+#' @return Printed the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file.
 #' @examples
 #' SCIEX_calculation_check(Standard, Test);
 #' @export
-SCIEX_calculation_check <- function(Standard, Test) {
-  standard_path <- "P:/Quality/Document Management/Doc/NXT Script/SCRT13_SCIEX OS Calculation Check/Standards/"
-  test_path <- "P:/Quality/Document Management/Doc/NXT Script/SCRT13_SCIEX OS Calculation Check/Test/"
+SCIEX_calculation_check <- function(
+    standard_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Standards/",
+    test_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Test/",
+    output_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Results/",
+    Standard,
+    Test) {
   standard <- read.csv(paste0(standard_path, Standard))
   test <- read.csv(paste0(test_path, Test))
   if (identical(standard, test)) {
@@ -34,7 +40,6 @@ SCIEX_calculation_check <- function(Standard, Test) {
     )
 
     # Save the results to an Excel file
-    output_path <- "P:/Quality/Document Management/Doc/NXT Script/SCRT13_SCIEX OS Calculation Check/"
     date <- format(Sys.time(), "%Y-%m-%d-%H-%M-%S")
     output_name <- paste0(output_path, "test_result_", date, ".xlsx")
     write_xlsx(result, output_name)
