@@ -72,6 +72,12 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     }
   }
 
+  if (length(lims$SAMPLE_NAME_REF) > length(os_sub$`Sample Name`)) {
+    print("Missing samples in the OS Analyte. Please check 'Not Match - sample' in the uploaded file.")
+  } else if (length(lims$SAMPLE_NAME_REF) < length(os_sub$`Sample Name`)) {
+    print("Extra samples found in the OS Analyte")
+  }
+
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
     select(Match_Name, everything())
 
