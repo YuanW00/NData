@@ -23,6 +23,7 @@ SCIEX_calculation_check <- function(
     Standard,
     Test) {
   standard <- read.csv(paste0(standard_path, Standard))
+  standard <- standard[, 1:2]
   test <- read.csv(paste0(test_path, Test))
   if (identical(standard, test)) {
     print("Test file is identical to the standard.")
