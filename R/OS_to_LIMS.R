@@ -46,10 +46,10 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     filter(`Sample Type` == "Unknown") |>
     select(intersect(col_select, colnames(os)))
 
-  colnames(os_sub) <- gsub("Update Lot Analyte (\\d+)", "Analyte \\1 Update Lot", colnames(os_sub))
-  columns_to_update <- grep("Analyte (\\d+) Update Lot", colnames(os_sub), value = TRUE)
-  os_sub[columns_to_update] <- os_sub$`Use Record`
-  summary(os_sub)
+  # colnames(os_sub) <- gsub("Update Lot Analyte (\\d+)", "Analyte \\1 Update Lot", colnames(os_sub))
+  # columns_to_update <- grep("Analyte (\\d+) Update Lot", colnames(os_sub), value = TRUE)
+  # os_sub[columns_to_update] <- os_sub$`Use Record`
+  # summary(os_sub)
 
   lims <- read.table(Template_file, header = TRUE, sep = "\t", check.names = FALSE)
   lims <- lims[, colnames(lims) != ""] |>
@@ -92,7 +92,7 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
 
     # Update the columns based on the condition
     upload[[analyte_col]] <- ifelse(is.na(upload[[col]]), "", upload[[analyte_col]])
-    upload[[lot_col]] <- ifelse(is.na(upload[[col]]), 0, upload[[lot_col]])
+    # upload[[lot_col]] <- ifelse(is.na(upload[[col]]), 0, upload[[lot_col]])
   }
   upload[is.na(upload)] <- ""
 
