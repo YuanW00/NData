@@ -46,11 +46,6 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     filter(`Sample Type` == "Unknown") |>
     select(intersect(col_select, colnames(os)))
 
-  # colnames(os_sub) <- gsub("Update Lot Analyte (\\d+)", "Analyte \\1 Update Lot", colnames(os_sub))
-  # columns_to_update <- grep("Analyte (\\d+) Update Lot", colnames(os_sub), value = TRUE)
-  # os_sub[columns_to_update] <- os_sub$`Use Record`
-  # summary(os_sub)
-
   lims <- read.table(Template_file, header = TRUE, sep = "\t", check.names = FALSE)
   lims <- lims[, colnames(lims) != ""] |>
     select(SAMPLE_NAME_REF,SAMPLE_TYPE_REF,EXPT_SAMPLE_BARCODE) |>
@@ -63,7 +58,6 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   os_sub$Match_Name <- paste0("Not Match-", sub("_.*", "", os_sub$`Sample Name`))
 
   for (match_index in intersect(lims$Match_Name, os_sub$Match_Name)) {
-    # match_index = "Not Match-75"
     i_lims <- which(lims$Match_Name == match_index)
     i_os <- which(os_sub$Match_Name == match_index)
     if (length(i_os) > 1) {
@@ -92,17 +86,10 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     select(Match_Name, everything())
 
   for (col in names(upload)[str_detect(names(upload), "Value")]) {
-
-    # Extract the prefix (e.g., "Analyte 1", "Analyte 2")
     prefix <- str_extract(col, "Analyte \\d+")
-
-    # Define the corresponding columns to update
     analyte_col <- prefix
     lot_col <- paste0(prefix, " Update Lot")
-
-    # Update the columns based on the condition
     upload[[analyte_col]] <- ifelse(is.na(upload[[col]]), "", upload[[analyte_col]])
-    # upload[[lot_col]] <- ifelse(is.na(upload[[col]]), 0, upload[[lot_col]])
   }
   upload[is.na(upload)] <- ""
 

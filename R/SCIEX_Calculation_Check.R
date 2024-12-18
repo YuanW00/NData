@@ -28,19 +28,13 @@ SCIEX_calculation_check <- function(
   if (identical(standard, test)) {
     print("Test file is identical to the standard.")
   } else {
-    # Compare each element in the two data frames
     comparison <- standard == test
-
-    # Check rows that have differences
     rowwise_result <- apply(comparison, 1, function(x) all(!is.na(x) & x))
-
-    # Combine rows that are different from each file
     result <- rbind(
       data.frame(Source = "Standard", Rows = which(!rowwise_result), Content = standard[!rowwise_result, ]),
       data.frame(Source = "Test", Rows = which(!rowwise_result), Content = test[!rowwise_result, ])
     )
 
-    # Save the results to an Excel file
     date <- format(Sys.time(), "%Y-%m-%d-%H-%M-%S")
     output_name <- paste0(output_path, "test_result_", date, ".xlsx")
     write_xlsx(result, output_name)
