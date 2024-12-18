@@ -63,19 +63,29 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   os_sub$Match_Name <- paste0("Not Match-", sub("_.*", "", os_sub$`Sample Name`))
 
   for (match_index in intersect(lims$Match_Name, os_sub$Match_Name)) {
+    # match_index = "Not Match-75"
     i_lims <- which(lims$Match_Name == match_index)
     i_os <- which(os_sub$Match_Name == match_index)
-    sample_name_extract <- sub("-\\d$", "", lims$SAMPLE_NAME_REF[i_lims])
-    if (str_detect(os_sub$`Sample Name`[i_os], sample_name_extract)) {
-      lims$Match_Name[i_lims] <- sample_name_extract
-      os_sub$Match_Name[i_os] <- sample_name_extract
+    if (length(i_os) > 1) {
+      for (index in i_os) {
+        sample_name_extract <- sub("-\\d$", "", lims$SAMPLE_NAME_REF[i_lims])
+        if (str_detect(os_sub$`Sample Name`[index], sample_name_extract)) {
+          lims$Match_Name[i_lims] <- paste0("Duplicate Sample - ", sample_name_extract)
+          os_sub$Match_Name[index] <- paste0("Duplicate Sample - ", sample_name_extract)
+        }
+      }
+      print("Extra samples found in the OS Analyte. Please check 'Duplicate Sample - sample' in the uploaded file.")
+    } else {
+      sample_name_extract <- sub("-\\d$", "", lims$SAMPLE_NAME_REF[i_lims])
+      if (str_detect(os_sub$`Sample Name`[i_os], sample_name_extract)) {
+        lims$Match_Name[i_lims] <- sample_name_extract
+        os_sub$Match_Name[i_os] <- sample_name_extract
+      }
     }
   }
 
   if (length(lims$SAMPLE_NAME_REF) > length(os_sub$`Sample Name`)) {
     print("Missing samples in the OS Analyte. Please check 'Not Match - sample' in the uploaded file.")
-  } else if (length(lims$SAMPLE_NAME_REF) < length(os_sub$`Sample Name`)) {
-    print("Extra samples found in the OS Analyte")
   }
 
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
