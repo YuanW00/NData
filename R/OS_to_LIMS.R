@@ -68,7 +68,7 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
           os_sub$Match_Name[index] <- paste0("Duplicate Sample - ", sample_name_extract)
         }
       }
-      print("Extra samples found in the OS Analyte. Please check 'Duplicate Sample - sample' in the uploaded file.")
+      print("Duplicate samples found. Please check 'Duplicate Sample - sample' in the uploaded file.")
     } else {
       sample_name_extract <- sub("-\\d$", "", lims$SAMPLE_NAME_REF[i_lims])
       if (str_detect(os_sub$`Sample Name`[i_os], sample_name_extract)) {
@@ -78,12 +78,28 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     }
   }
 
-  if (length(lims$SAMPLE_NAME_REF) > length(os_sub$`Sample Name`)) {
-    print("Missing samples in the OS Analyte. Please check 'Not Match - sample' in the uploaded file.")
+  # Check if the sample index is sequential
+  lims$Sequence <- as.numeric(sub("_.*$", "", lims$SAMPLE_NAME_REF))
+  expected_sequence <- seq(min(lims$Sequence), max(lims$Sequence))
+  lims_missing <- setdiff(expected_sequence, lims$Sequence)
+
+  if (length(lims_missing) == 0) {
+    print("The sample is sequential.")
+  } else {
+    print(paste0("The sample is not sequential and missing sample index are ", paste(lims_missing, collapse = ", "), " in the LIMS template."))
   }
 
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
-    select(Match_Name, everything())
+    select(Match_Name, everything()) |>
+    select(-Sequence)
+
+  # Check if there is missing sample in the OS file
+  if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
+    print("Missing sample found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
+  }
+  if (any(str_detect(upload$Match_Name, "Not Match") & !is.na(upload$EXPT_SAMPLE_BARCODE))) {
+    print("Missing sample found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
+  }
 
   for (col in names(upload)[str_detect(names(upload), "Value")]) {
     prefix <- str_extract(col, "Analyte \\d+")
