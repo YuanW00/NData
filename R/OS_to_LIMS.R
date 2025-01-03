@@ -89,6 +89,20 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
     print(paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", ")))
   }
 
+  for (missing in lims_missing) {
+    missing_match_name <- paste0("Not Match-", missing)
+    if (!(missing_match_name %in% lims$Match_Name)) {
+      missing_data <- data.frame(
+        Match_Name = paste0("Not Match-", missing),
+        SAMPLE_NAME_REF = rep(NA, 1),
+        SAMPLE_TYPE_REF = rep(NA, 1),
+        EXPT_SAMPLE_BARCODE = rep(NA, 1),
+        Sequence = rep(NA, 1)
+      )
+      lims <- rbind(lims, missing_data)
+    }
+  }
+
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
     select(Match_Name, everything()) |>
     select(-Sequence)
