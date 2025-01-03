@@ -86,7 +86,7 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   if (length(lims_missing) == 0) {
     print("The sample is sequential.")
   } else {
-    print(paste0("The sample is not sequential and missing sample index are ", paste(lims_missing, collapse = ", "), " in the LIMS template."))
+    print(paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", ")))
   }
 
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
@@ -95,10 +95,10 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
 
   # Check if there is missing sample in the OS file
   if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    print("Missing sample found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
+    print("Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
   }
   if (any(str_detect(upload$Match_Name, "Not Match") & !is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    print("Missing sample found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
+    print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
   }
 
   for (col in names(upload)[str_detect(names(upload), "Value")]) {
