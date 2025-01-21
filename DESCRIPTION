@@ -18,4 +18,6 @@ Imports:
     dplyr,
     stringr,
     readr, 
-    writexl
+    writexl, 
+    readxl, 
+    openxlsx
