@@ -13,18 +13,18 @@ SCIEX_calculation_check(
 )
 }
 \arguments{
-\item{standard_path}{The directory stored the standard SCIEX OS formula .xlsx file. There is a default settig}
+\item{standard_path}{The directory stored the standard SCIEX OS formula .xlsx file. There is a default setting.}
 
-\item{test_path}{The directory stored the analyte SCIEX OS formula .xlsx file. There is a default seting}
+\item{test_path}{The directory stored the analyte SCIEX OS formula .xlsx file. There is a default setting.}
 
 \item{output_path}{The directory to store the comparison result. There is a default setting.}
 
-\item{Standard}{The formula file that is exported from SCIEX OS template and saved as .xlsx}
+\item{Standard}{The formula file that is exported from SCIEX OS template and saved as .xlsx.}
 
-\item{Test}{The formula file that is exported from SCIEX OS analyte and saved as .xlsx}
+\item{Test}{The formula file that is exported from SCIEX OS analyte and saved as .xlsx.}
 }
 \value{
-Printed the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file
+Printed the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file.
 }
 \description{
 Convert OS file to LIMS template format
