@@ -2,7 +2,7 @@
 #' Result convert to DTA format
 #'
 #' Convert Sample Lot Result to DTA format
-#' @import dplyr
+#' @import tidyr
 #' @import openxlsx
 #' @import readxl
 #' @import tidyverse
