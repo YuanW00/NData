@@ -1,6 +1,7 @@
 #' OS file Conversion
 #'
 #' Convert OS file to LIMS template format
+#' @import dplyr
 #' @param OS_file The data file that is exported from SCIEX OS analyte and saved as .txt
 #' @param Template_file The data template downloaded from LIMS as .txt
 #' @return Return two data frames: one is alert data frame if there is any missing or unmatched samples and the other one is the result data frame with analyte result filled in the LIMS template

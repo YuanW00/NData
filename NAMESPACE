@@ -3,6 +3,7 @@
 export(DTA)
 export(OS_to_LIMS)
 export(SCIEX_calculation_check)
+import(dplyr)
 import(readxl)
 import(tidyr)
 import(tidyverse)

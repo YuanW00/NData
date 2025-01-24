@@ -2,6 +2,7 @@
 #'
 #' Convert Sample Lot Result to DTA format
 #' @import tidyr
+#' @import dplyr
 #' @import readxl
 #' @import tidyverse
 #' @param study_id The study id for current study, acquired from LIMS project
