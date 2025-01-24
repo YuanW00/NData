@@ -4,6 +4,7 @@
 #' @import tidyr
 #' @import dplyr
 #' @import readxl
+#' @import stringr
 #' @import tidyverse
 #' @param study_id The study id for current study, acquired from LIMS project
 #' @param version The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default
