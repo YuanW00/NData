@@ -1,26 +1,29 @@
-
 #' Result convert to DTA format
 #'
 #' Convert Sample Lot Result to DTA format
 #' @import tidyr
-#' @import openxlsx
 #' @import readxl
 #' @import tidyverse
 #' @param study_id The study id for current study, acquired from LIMS project
-#' @param version The expected version of DTA format: "basic" or "plus", "basic" by default
+#' @param version The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default
 #' @param data_file The result data file exported from LIMS sample lot
 #' @param test_date The data file that recorded the test date for each sample index
-#' @return Return nothing but write a .xlsx file that is ready to be sent to client
+#' @param column_choice The required columns needs to be exported in the report for cilent
+#' @return Return result data frame in the required data transfer formatting
 #' @examples
 #' DTA(study_id = "STD1234", version = "basic", data_file = "result", test_date = "Testdate")
 #' DTA(study_id = "STD1234", version = "plus", data_file = "result", test_date = "Testdate");
 #' @export
 DTA <- function (
     study_id, version = "basic",
-    data_file, test_date
+    data_file, test_date,
+    column_choice = c("Study ID", "Sponsor Sample Barcode",
+                      "Subject ID", "Visit Name", "Sample Type",
+                      "Sample Test Date", "Test Name", "Test Result",
+                      "Test Result Unit", "Comments")
 ) {
 
-  data <- read_excel(paste0(data_file, ".xlsx"))
+  data <- read_excel(data_file)
   data$`LLOQ` <- NA
   data$`ULOQ` <- NA
   data$`ULOQU` <- NA
@@ -79,7 +82,7 @@ DTA <- function (
       `Comments` = Notes
     )
 
-  testdate <- read_excel(paste0(test_date, ".xlsx")) |>
+  testdate <- read_excel(test_date) |>
     select(`Data Acquisition Date`, `Notes`) |>
     rename(`Sample Test Date` = `Data Acquisition Date`)
   expand_ranges <- function(data) {
@@ -117,7 +120,10 @@ DTA <- function (
              `Sample Collection Date`, `Nextcea Received Date`,
              `Sample Test Date`, `Test Name`, `Test Result`, `Test Result Unit`,
              `Lab Test LLOQ`, `Lab Test ULOQ`, `LLOQ/ULOQ Units`, Comments)
+  } else if (version == "user-defined") {
+    final_DTA <- final_DTA |>
+      select(any_of(column_choice))
   }
 
-  write.xlsx(final_DTA, paste0(study_id, "_Final_DTA_", version, ".xlsx"))
+  return(final_DTA)
 }

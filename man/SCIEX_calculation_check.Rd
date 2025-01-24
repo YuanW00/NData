@@ -2,29 +2,17 @@
 % Please edit documentation in R/SCIEX_Calculation_Check.R
 \name{SCIEX_calculation_check}
 \alias{SCIEX_calculation_check}
-\title{OS file Conversion}
+\title{OS Formula Check}
 \usage{
-SCIEX_calculation_check(
-  standard_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Standards/",
-  test_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Test/",
-  output_path = "P:/Quality/Tools/SCRT13_SCIEX OS Calculation Check/Results/",
-  Standard,
-  Test
-)
+SCIEX_calculation_check(standard_file, test_file)
 }
 \arguments{
-\item{standard_path}{The directory stored the standard SCIEX OS formula .xlsx file. There is a default setting.}
+\item{standard_file}{The formula file that is exported from SCIEX OS template and saved as .txt.}
 
-\item{test_path}{The directory stored the analyte SCIEX OS formula .xlsx file. There is a default setting.}
-
-\item{output_path}{The directory to store the comparison result. There is a default setting.}
-
-\item{Standard}{The formula file that is exported from SCIEX OS template and saved as .xlsx.}
-
-\item{Test}{The formula file that is exported from SCIEX OS analyte and saved as .xlsx.}
+\item{test_file}{The formula file that is exported from SCIEX OS analyte and saved as .txt.}
 }
 \value{
-Printed the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file.
+Return the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file. And if there are difference, return the data frame containing the different formulas from both standard file and test file.
 }
 \description{
 Convert OS file to LIMS template format

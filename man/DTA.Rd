@@ -4,19 +4,29 @@
 \alias{DTA}
 \title{Result convert to DTA format}
 \usage{
-DTA(study_id, version = "basic", data_file, test_date)
+DTA(
+  study_id,
+  version = "basic",
+  data_file,
+  test_date,
+  column_choice = c("Study ID", "Sponsor Sample Barcode", "Subject ID", "Visit Name",
+    "Sample Type", "Sample Test Date", "Test Name", "Test Result", "Test Result Unit",
+    "Comments")
+)
 }
 \arguments{
 \item{study_id}{The study id for current study, acquired from LIMS project}
 
-\item{version}{The expected version of DTA format: "basic" or "plus", "basic" by default}
+\item{version}{The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default}
 
 \item{data_file}{The result data file exported from LIMS sample lot}
 
 \item{test_date}{The data file that recorded the test date for each sample index}
+
+\item{column_choice}{The required columns needs to be exported in the report for cilent}
 }
 \value{
-Return nothing but write a .xlsx file that is ready to be sent to client
+Return result data frame in the required data transfer formatting
 }
 \description{
 Convert Sample Lot Result to DTA format

@@ -1,21 +1,13 @@
-
 #' OS file Conversion
 #'
 #' Convert OS file to LIMS template format
-#' @import dplyr
-#' @import readr
-#' @import writexl
-#' @import tidyverse
-#' @import stringr
-#' @param path The working directory that stores all the input data and output data
-#' @param OS_file The data file that is exported from SCIEX OS
-#' @param Template_file The data template needs to be filled to upload the results to the LIMS
-#' @return Return nothing but write a .txt file that is ready to be uploaded to the LIMS
+#' @param OS_file The data file that is exported from SCIEX OS analyte and saved as .txt
+#' @param Template_file The data template downloaded from LIMS as .txt
+#' @return Return two data frames: one is alert data frame if there is any missing or unmatched samples and the other one is the result data frame with analyte result filled in the LIMS template
 #' @examples
 #' OS_to_LIMS("~/Data", "OS.txt", "LIMS.txt");
 #' @export
-OS_to_LIMS <- function(path, OS_file, Template_file) {
-  setwd(path)
+OS_to_LIMS <- function(OS_file, Template_file) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
                   "Analyte 1", "Analyte 1 Value", "Analyte 1 Unit", "Update Lot Analyte 1",
                   "Analyte 2", "Analyte 2 Value", "Analyte 2 Unit", "Update Lot Analyte 2",
@@ -57,6 +49,8 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   lims$Match_Name <- paste0("Not Match-", sub("_.*", "", lims$SAMPLE_NAME_REF))
   os_sub$Match_Name <- paste0("Not Match-", sub("_.*", "", os_sub$`Sample Name`))
 
+  alert_df <- data.frame()
+
   for (match_index in intersect(lims$Match_Name, os_sub$Match_Name)) {
     i_lims <- which(lims$Match_Name == match_index)
     i_os <- which(os_sub$Match_Name == match_index)
@@ -68,7 +62,8 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
           os_sub$Match_Name[index] <- paste0("Duplicate Sample - ", sample_name_extract)
         }
       }
-      print("Duplicate samples found. Please check 'Duplicate Sample - sample' in the uploaded file.")
+      alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 1", Content = "Duplicate samples found. Please check 'Duplicate Sample - sample' in the uploaded file."))
+      # print("Duplicate samples found. Please check 'Duplicate Sample - sample' in the uploaded file.")
     } else {
       sample_name_extract <- sub("-\\d$", "", lims$SAMPLE_NAME_REF[i_lims])
       if (str_detect(os_sub$`Sample Name`[i_os], sample_name_extract)) {
@@ -84,9 +79,11 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   lims_missing <- setdiff(expected_sequence, lims$Sequence)
 
   if (length(lims_missing) == 0) {
-    print("The sample is sequential.")
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Normal", Content = "The sample is sequential."))
+    # print("The sample is sequential.")
   } else {
-    print(paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", ")))
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 2", Content = paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", "))))
+    # print(paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", ")))
   }
 
   for (missing in lims_missing) {
@@ -109,10 +106,12 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
 
   # Check if there is missing sample in the OS file
   if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    print("Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 3", Content = "Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file."))
+    # print("Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
   }
   if (any(str_detect(upload$Match_Name, "Not Match") & !is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 4", Content = "Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file."))
+    # print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
   }
 
   for (col in names(upload)[str_detect(names(upload), "Value")]) {
@@ -123,9 +122,9 @@ OS_to_LIMS <- function(path, OS_file, Template_file) {
   }
   upload[is.na(upload)] <- ""
 
-  output_name <- sub("\\.txt$", "", Template_file)
-  write.table(upload, paste0(output_name, "_upload.txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
-
+  result <- list(
+    alert = alert_df,
+    result_dataset = upload
+  )
+  return(result)
 }
-
-

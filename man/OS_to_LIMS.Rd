@@ -4,17 +4,15 @@
 \alias{OS_to_LIMS}
 \title{OS file Conversion}
 \usage{
-OS_to_LIMS(path, OS_file, Template_file)
+OS_to_LIMS(OS_file, Template_file)
 }
 \arguments{
-\item{path}{The working directory that stores all the input data and output data}
+\item{OS_file}{The data file that is exported from SCIEX OS analyte and saved as .txt}
 
-\item{OS_file}{The data file that is exported from SCIEX OS}
-
-\item{Template_file}{The data template needs to be filled to upload the results to the LIMS}
+\item{Template_file}{The data template downloaded from LIMS as .txt}
 }
 \value{
-Return nothing but write a .txt file that is ready to be uploaded to the LIMS
+Return two data frames: one is alert data frame if there is any missing or unmatched samples and the other one is the result data frame with analyte result filled in the LIMS template
 }
 \description{
 Convert OS file to LIMS template format
