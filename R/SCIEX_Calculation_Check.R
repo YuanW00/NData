@@ -14,14 +14,16 @@ SCIEX_calculation_check <- function(
   standard <- standard[, 1:2]
   test <- read.table(test_file, sep = "\t")
   if (identical(standard, test)) {
-    result <- "Test file is identical to the standard."
+    result <- list(
+      message = "Test file is identical to the standard.",
+      diff = NULL
+    )
+
   } else {
     comparison <- standard == test
     rowwise_result <- apply(comparison, 1, function(x) all(!is.na(x) & x))
     result <- list(
       message = "Test file is different from the standard.",
-      # standard_diff = data.frame(Source = "Standard", Rows = which(rowwise_result==FALSE), Formula = standard[!rowwise_result, ]$V2),
-      # test_diff = data.frame(Source = "Test", Rows = which(!rowwise_result), Formula = test[!rowwise_result, ]$V2)
       diff = rbind(
         data.frame(Source = "Standard", Rows = which(rowwise_result==FALSE), Formula = standard[!rowwise_result, ]$V2),
         data.frame(Source = "Test", Rows = which(!rowwise_result), Formula = test[!rowwise_result, ]$V2)
