@@ -45,8 +45,12 @@ OS_to_LIMS <- function(OS_file, Template_file) {
     select(SAMPLE_NAME_REF,SAMPLE_TYPE_REF,EXPT_SAMPLE_BARCODE) |>
     filter(SAMPLE_TYPE_REF == "NEXTCEA SAMPLE LOT")
 
-  lims <- lims[order(as.numeric(sub("_.*", "", lims$SAMPLE_NAME_REF))), ]
-  os_sub <- os_sub[order(as.numeric(sub("_.*", "", os_sub$`Sample Name`))), ]
+  lims$order <- gsub("\\D", "", sub("_.*", "", lims$SAMPLE_NAME_REF))
+  os_sub$order <- sub("_.*", "", os_sub$`Sample Name`)
+  os_sub <- os_sub[!grepl("eQC", os_sub$order), ]
+  os_sub$order <- gsub("\\D", "", sub("_.*", "", os_sub$order))
+  lims <- lims[order(as.numeric(lims$order)), ]
+  os_sub <- os_sub[order(as.numeric(os_sub$order)), ]
   name_check <- NULL
   lims$Match_Name <- paste0("Not Match-", sub("_.*", "", lims$SAMPLE_NAME_REF))
   os_sub$Match_Name <- paste0("Not Match-", sub("_.*", "", os_sub$`Sample Name`))
@@ -76,7 +80,9 @@ OS_to_LIMS <- function(OS_file, Template_file) {
   }
 
   # Check if the sample index is sequential
-  lims$Sequence <- as.numeric(sub("_.*$", "", lims$SAMPLE_NAME_REF))
+  lims$Sequence <- sub("_.*$", "", lims$SAMPLE_NAME_REF)
+  lims <- lims %>%
+    mutate(Sequence = as.numeric(str_extract(Sequence, "\\d+")))
   expected_sequence <- seq(min(lims$Sequence), max(lims$Sequence))
   lims_missing <- setdiff(expected_sequence, lims$Sequence)
 
@@ -96,7 +102,8 @@ OS_to_LIMS <- function(OS_file, Template_file) {
         SAMPLE_NAME_REF = rep(NA, 1),
         SAMPLE_TYPE_REF = rep(NA, 1),
         EXPT_SAMPLE_BARCODE = rep(NA, 1),
-        Sequence = rep(NA, 1)
+        Sequence = rep(NA, 1),
+        order = missing
       )
       lims <- rbind(lims, missing_data)
     }
@@ -104,7 +111,7 @@ OS_to_LIMS <- function(OS_file, Template_file) {
 
   upload <- full_join(lims, os_sub, by = "Match_Name") |>
     select(Match_Name, everything()) |>
-    select(-Sequence)
+    select(-c(Sequence, order.x, order.y))
 
   # Check if there is missing sample in the OS file
   if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
@@ -129,4 +136,7 @@ OS_to_LIMS <- function(OS_file, Template_file) {
     result_dataset = upload
   )
   return(result)
+  # output_name <- sub("\\.txt$", "", Template_file)
+  # write.table(upload, paste0(output_name, "_upload.txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+
 }
