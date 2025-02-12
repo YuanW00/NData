@@ -21,4 +21,8 @@ Imports:
     readr, 
     writexl, 
     readxl, 
-    openxlsx
+    openxlsx, 
+    httr, 
+    jsonlite,
+    purrr
+    
