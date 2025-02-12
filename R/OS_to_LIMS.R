@@ -129,6 +129,8 @@ OS_to_LIMS <- function(OS_file, sample_barcodes) {
     upload[[analyte_col]] <- ifelse(is.na(upload[[col]]), "", upload[[analyte_col]])
   }
   upload[is.na(upload)] <- ""
+  upload <- upload |>
+    select(-c(order.x, order.y))
 
   result <- list(
     alert = alert_df,
