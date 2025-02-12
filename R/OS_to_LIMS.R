@@ -41,7 +41,8 @@ OS_to_LIMS <- function(OS_file, sample_barcodes) {
     select(intersect(col_select, colnames(os)))
 
   # lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password)
-  lims <- sample_barcodes
+  lims <- sample_barcodes |>
+    select(-Active)
 
   lims$order <- gsub("\\D", "", sub("_.*", "", lims$SAMPLE_NAME_REF))
   os_sub$order <- sub("_.*", "", os_sub$`Sample Name`)
