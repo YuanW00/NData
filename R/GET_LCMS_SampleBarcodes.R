@@ -1,6 +1,6 @@
-#' OS file Conversion
+#' Sample Barcode Query
 #'
-#' Convert OS file to LIMS template format
+#' Get LCMS Sample Barcode from LIMS
 #' @import httr
 #' @import jsonlite
 #' @import dplyr

@@ -15,7 +15,7 @@ SCIEX_calculation_check(standard_file, test_file)
 Return the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file. And if there are difference, return the data frame containing the different formulas from both standard file and test file.
 }
 \description{
-Convert OS file to LIMS template format
+Check OS Calculation Formula with Standard
 }
 \examples{
 SCIEX_calculation_check(Standard, Test);

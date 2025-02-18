@@ -1,6 +1,6 @@
 #' OS Formula Check
 #'
-#' Convert OS file to LIMS template format
+#' Check OS Calculation Formula with Standard
 #' @param standard_file The formula file that is exported from SCIEX OS template and saved as .txt.
 #' @param test_file The formula file that is exported from SCIEX OS analyte and saved as .txt.
 #' @return Return the result of calculation checking: whether there is a difference between the formula in the analyte file and standard file. And if there are difference, return the data frame containing the different formulas from both standard file and test file.

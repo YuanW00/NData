@@ -1,6 +1,6 @@
-#' OS file Conversion
+#' OS Result Upload
 #'
-#' Convert OS file to LIMS template format
+#' Convert OS file to LIMS LCMS template format
 #' @import dplyr
 #' @import readr
 #' @param OS_file The data file that is exported from SCIEX OS analyte and saved as .txt

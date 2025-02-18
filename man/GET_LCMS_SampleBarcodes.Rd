@@ -2,7 +2,7 @@
 % Please edit documentation in R/GET_LCMS_SampleBarcodes.R
 \name{GET_LCMS_SampleBarcodes}
 \alias{GET_LCMS_SampleBarcodes}
-\title{OS file Conversion}
+\title{Sample Barcode Query}
 \usage{
 GET_LCMS_SampleBarcodes(site, ept_barcode, username, password)
 }
@@ -19,7 +19,7 @@ GET_LCMS_SampleBarcodes(site, ept_barcode, username, password)
 Return one data frame including sample barcodes, sample name, sample lot type and sample active status
 }
 \description{
-Convert OS file to LIMS template format
+Get LCMS Sample Barcode from LIMS
 }
 \examples{
 GET_LCMS_SampleBarcodes("Test", "LCMS1", "user", "password");

@@ -1,4 +1,4 @@
-#' Result convert to DTA format
+#' Result to DTA
 #'
 #' Convert Sample Lot Result to DTA format
 #' @import tidyr

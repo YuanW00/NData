@@ -2,7 +2,7 @@
 % Please edit documentation in R/OS_to_LIMS.R
 \name{OS_to_LIMS}
 \alias{OS_to_LIMS}
-\title{OS file Conversion}
+\title{OS Result Upload}
 \usage{
 OS_to_LIMS(OS_file, sample_barcodes)
 }
@@ -15,7 +15,7 @@ OS_to_LIMS(OS_file, sample_barcodes)
 Return two data frames: one is alert data frame if there is any missing or unmatched samples and the other one is the result data frame with analyte result filled in the LIMS template
 }
 \description{
-Convert OS file to LIMS template format
+Convert OS file to LIMS LCMS template format
 }
 \examples{
 OS_to_LIMS("OS.txt", barcods_df);

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DTA.R
 \name{DTA}
 \alias{DTA}
-\title{Result convert to DTA format}
+\title{Result to DTA}
 \usage{
 DTA(
   study_id,
