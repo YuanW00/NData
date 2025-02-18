@@ -28,15 +28,36 @@ GET_project_sample_lot <- function (site, project, username, password) {
   }
 
   sample_lot <- NULL
-  for (i in proj_pages) {
-    url <- paste0(int_url, i)
-    response <- GET(url, authenticate(username, password))
-    data <- fromJSON(content(response, "text"))
-    df <- data$value |>
-      unnest(where(is.list), names_sep = "_") |>
-      filter(PROJECT_Barcode == project)
-    sample_lot <- as.data.frame(rbind(sample_lot, df))
+
+  if (is.NULL(proj_pages)) {
+    url <- paste0(int_url, max(page_list$page))
+    while (TRUE) {
+      response <- GET(url, authenticate(username, password))
+      data <- fromJSON(content(response, "text"))
+      df <- data$value |>
+        unnest(where(is.list), names_sep = "_") |>
+        filter(PROJECT_Barcode == project)
+      sample_lot <- as.data.frame(rbind(sample_lot, df))
+      if (!is.null(data[["@odata.nextLink"]]) ) {
+        url <- data[["@odata.nextLink"]]
+      } else {
+        break
+      }
+    }
+
+  } else {
+
+    for (i in proj_pages) {
+      url <- paste0(int_url, i)
+      response <- GET(url, authenticate(username, password))
+      data <- fromJSON(content(response, "text"))
+      df <- data$value |>
+        unnest(where(is.list), names_sep = "_") |>
+        filter(PROJECT_Barcode == project)
+      sample_lot <- as.data.frame(rbind(sample_lot, df))
+    }
   }
+
   sample_lot <- sample_lot |>
     filter(Active == TRUE) |>
     select(-c(EntityTypeName, Id, Sequence, Created, Modified, Active, LikedBy, FollowedBy,
