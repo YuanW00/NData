@@ -16,12 +16,13 @@
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  page_list <- data("test")
-  proj_pages <- page_list$page[page_list$PROJECT_Barcode == project]
-
   if (site == "Test") {
+    data("test")
+    proj_pages <- test$page[test$PROJECT_Barcode == project]
     int_url <- "https://na1test.platformforscience.com/odata/NEXTCEA_SAMPLE_LOT?tenant=Nextcea_Test_28Mar2024&$expand=PROJECT&$skiptoken="
   } else if (site == "Production") {
+    data("prod")
+    proj_pages <- prod$page[prod$PROJECT_Barcode == project]
     int_url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken="
   } else {
     print("Wrong Site!")
@@ -29,7 +30,7 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
 
   sample_lot <- NULL
 
-  if (is.NULL(proj_pages)) {
+  if (is.null(proj_pages)) {
     url <- paste0(int_url, max(page_list$page))
     while (TRUE) {
       response <- GET(url, authenticate(username, password))
@@ -68,5 +69,8 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
   return(sample_lot)
 }
 
-
-
+# site <- "Test"
+# project <- "NP227"
+# username <- "ywang"
+# password <-  "0809Ann@"
+# sl <- GET_PROJ_SampleLot("Test", "NP227", "ywang", "0809Ann@")
