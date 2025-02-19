@@ -6,14 +6,13 @@
 #' @import dplyr
 #' @import purrr
 #' @import tidyr
-#' @param site The PFS version need to work on: "Test" or "Production"
 #' @param username The username to log in PFS
 #' @param password The password to log in PFS
 #' @return Return one data frame including project barcode and corresponding pages
 #' @examples
 #' UPDATE_project_sample_lot_page("Test", "user", "password");
 #' @export
-UPDATE_project_sample_lot_page <- function(site, username, password) {
+UPDATE_PROJ_LotPage <- function(site, username, password) {
 
   if (site == "Test") {
     url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT"
@@ -43,8 +42,19 @@ UPDATE_project_sample_lot_page <- function(site, username, password) {
   project_page <- page_project_lot |>
     filter(Active == TRUE) |>
     distinct(PROJECT_Barcode, page)
-  saveRDS(project_page, file = file.path(get_cache_dir(), paste0(site, "_project_page.rds")))
+
   message("Data updated successfully!")
 
-  return(list(message, project_page))
+  return(project_page)
 }
+
+# site <- "Test"
+# test <- UPDATE_PROJ_LotPage(site, username, password)
+# usethis::use_data(test, overwrite = TRUE)
+#
+# site <- "Production"
+# prod <- UPDATE_PROJ_LotPage(site, username, password)
+# usethis::use_data(prod, overwrite = TRUE)
+
+
+

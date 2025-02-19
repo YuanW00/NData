@@ -7,7 +7,7 @@
 #' @examples
 #' SCIEX_calculation_check(Standard, Test);
 #' @export
-SCIEX_calculation_check <- function(
+SCIEX_Calculation_Check <- function(
     standard_file,
     test_file) {
   standard <- read.table(standard_file, sep = "\t")

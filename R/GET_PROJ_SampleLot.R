@@ -14,9 +14,9 @@
 #' @examples
 #' GET_LCMS_SampleBarcodes("Test", "NP1", "user", "password");
 #' @export
-GET_project_sample_lot <- function (site, project, username, password) {
+GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  page_list <- load_data(site)
+  page_list <- data("test")
   proj_pages <- page_list$page[page_list$PROJECT_Barcode == project]
 
   if (site == "Test") {
@@ -67,3 +67,6 @@ GET_project_sample_lot <- function (site, project, username, password) {
 
   return(sample_lot)
 }
+
+
+

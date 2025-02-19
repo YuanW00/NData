@@ -2,10 +2,10 @@
 
 export(DTA)
 export(GET_LCMS_SampleBarcodes)
-export(GET_project_sample_lot)
+export(GET_PROJ_SampleLot)
 export(OS_to_LIMS)
-export(SCIEX_calculation_check)
-export(UPDATE_project_sample_lot_page)
+export(SCIEX_Calculation_Check)
+export(UPDATE_PROJ_LotPage)
 import(dplyr)
 import(httr)
 import(jsonlite)
