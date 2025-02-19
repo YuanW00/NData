@@ -48,13 +48,7 @@ UPDATE_PROJ_LotPage <- function(site, username, password) {
   return(project_page)
 }
 
-# site <- "Test"
-# test <- UPDATE_PROJ_LotPage(site, username, password)
-# usethis::use_data(test, overwrite = TRUE)
-#
-# site <- "Production"
-# prod <- UPDATE_PROJ_LotPage(site, username, password)
-# usethis::use_data(prod, overwrite = TRUE)
+
 
 
 

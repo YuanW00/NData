@@ -68,9 +68,3 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
 
   return(sample_lot)
 }
-
-# site <- "Test"
-# project <- "NP227"
-# username <- "ywang"
-# password <-  "0809Ann@"
-# sl <- GET_PROJ_SampleLot("Test", "NP227", "ywang", "0809Ann@")
