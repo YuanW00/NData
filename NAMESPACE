@@ -3,6 +3,7 @@
 export(DTA)
 export(GET_LCMS_SampleBarcodes)
 export(GET_PROJ_SampleLot)
+export(GET_SAMP_TestDate)
 export(OS_to_LIMS)
 export(SCIEX_Calculation_Check)
 export(UPDATE_PROJ_LotPage)
