@@ -36,6 +36,7 @@ GET_LCMS_SampleBarcodes <- function (site, ept_barcode, username, password) {
              SAMPLE_TYPE_REF = ENTITY$EntityTypeName) |>
       select(Active, Barcode, SAMPLE_NAME_REF, SAMPLE_TYPE_REF) |>
       filter(SAMPLE_TYPE_REF == "NEXTCEA_SAMPLE_LOT") |>
+      filter(!str_detect(SAMPLE_NAME_REF, "eQC")) |>
       rename(EXPT_SAMPLE_BARCODE = Barcode)
     whole_df <- rbind(whole_df, df_sub)
     if (!is.null(data[["@odata.nextLink"]])) {
