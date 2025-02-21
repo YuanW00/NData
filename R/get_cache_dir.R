@@ -9,6 +9,3 @@ get_cache_dir <- function() {
   return(cache_dir)
 }
 
-
-dir <- get_cache_dir()
-setwd(dir)
