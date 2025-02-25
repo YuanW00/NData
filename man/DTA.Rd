@@ -7,8 +7,10 @@
 DTA(
   study_id,
   version = "basic",
-  data_file,
-  test_date,
+  site,
+  project,
+  username,
+  password,
   column_choice = c("Study ID", "Sponsor Sample Barcode", "Subject ID", "Visit Name",
     "Sample Type", "Sample Test Date", "Test Name", "Test Result", "Test Result Unit",
     "Comments")
@@ -19,9 +21,13 @@ DTA(
 
 \item{version}{The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default}
 
-\item{data_file}{The result data file exported from LIMS sample lot}
+\item{site}{The PFS version need to work on: "Test" or "Production"}
 
-\item{test_date}{The data file that recorded the test date for each sample index}
+\item{project}{The Project Barcode to upload the analyte result}
+
+\item{username}{The username to log in PFS}
+
+\item{password}{The password to log in PFS}
 
 \item{column_choice}{The required columns needs to be exported in the report for cilent}
 }

@@ -1,6 +1,6 @@
-#' Sample Test Date Query
+#' Sample Experiment Info Query
 #'
-#' Get Sample Test Date from PFS
+#' Get Sample Experiment Info from PFS
 #' @import httr
 #' @import jsonlite
 #' @import dplyr
@@ -10,11 +10,11 @@
 #' @param project The Project Barcode to upload the analyte result
 #' @param username The username to log in PFS
 #' @param password The password to log in PFS
-#' @return Return one data frame including project barcode and corresponding pages
+#' @return Return one data frame including sample index, test date, and LLOQ/ULOQ
 #' @examples
-#' GET_SAMP_TestDate("Test", "user", "password");
+#' GET_SAMP_ExpmtInfo("Test", "NP1", "user", "password");
 #' @export
-GET_SAMP_TestDate <- function (site, project, username, password) {
+GET_SAMP_ExpInfo <- function (site, project, username, password) {
   if (site == "Test") {
 
     url <- paste0("https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/NEXTCEA_PROJECT('",
@@ -24,21 +24,26 @@ GET_SAMP_TestDate <- function (site, project, username, password) {
                   project, "')/REV_EXPERIMENT_PROJECT")
   }
 
-  test_date <- NULL
+  cols_need <- c("NOTES", "DATE", paste0("LLOQ_ANALYTE_", seq(1:15)), paste0("ULOQ_ANALYTE_", seq(1:15)))
+
+  info_table <- NULL
   while (TRUE) {
     response <- GET(url, authenticate(username, password))
     data <- fromJSON(content(response, "text"))
     df <- data$value |>
-      select(DATE, NOTES)
-    test_date <- as.data.frame(rbind(test_date, df))
+      select(intersect(cols_need, names(data$value)))
+    info_table <- as.data.frame(rbind(info_table, df))
     if (!is.null(data[["@odata.nextLink"]]) ) {
       url <- data[["@odata.nextLink"]]
     } else {
       break
     }
   }
-  test_date <- test_date |>
-    rename(`Sample Test Date` = DATE)
 
-  return(test_date)
+  info_table <- info_table |>
+    rename(`Sample Test Date` = DATE)
+  colnames(info_table) <- gsub("^LLOQ_ANALYTE_(\\d+)$", "ANALYTE_\\1_LLOQ", colnames(info_table))
+  colnames(info_table) <- gsub("^ULOQ_ANALYTE_(\\d+)$", "ANALYTE_\\1_ULOQ", colnames(info_table))
+
+  return(info_table)
 }

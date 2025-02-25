@@ -8,8 +8,10 @@
 #' @import tidyverse
 #' @param study_id The study id for current study, acquired from LIMS project
 #' @param version The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default
-#' @param data_file The result data file exported from LIMS sample lot
-#' @param test_date The data file that recorded the test date for each sample index
+#' @param site The PFS version need to work on: "Test" or "Production"
+#' @param project The Project Barcode to upload the analyte result
+#' @param username The username to log in PFS
+#' @param password The password to log in PFS
 #' @param column_choice The required columns needs to be exported in the report for cilent
 #' @return Return result data frame in the required data transfer formatting
 #' @examples
@@ -18,75 +20,14 @@
 #' @export
 DTA <- function (
     study_id, version = "basic",
-    data_file, test_date,
+    site, project, username, password,
     column_choice = c("Study ID", "Sponsor Sample Barcode",
                       "Subject ID", "Visit Name", "Sample Type",
                       "Sample Test Date", "Test Name", "Test Result",
                       "Test Result Unit", "Comments")
 ) {
 
-  data <- read_excel(data_file)
-  data$`LLOQ` <- NA
-  data$`ULOQ` <- NA
-  data$`ULOQU` <- NA
-
-  colnames(data)[colnames(data) == "Analyte Result Comment"] <- "Analysis Result Comment"
-
-  data_long <- data |>
-    pivot_longer(
-      cols = starts_with("Analyte"),
-      names_to = c("AnalyteGroup", ".value"),
-      names_pattern = "Analyte (\\d+) (.+)"
-    )
-
-  data_long <- data_long |>
-    mutate(
-      `Test Name` = case_when(
-        AnalyteGroup == "1" ~ data$`Analyte 1`[!(is.na(data$`Analyte 1`))][1],
-        AnalyteGroup == "2" ~ data$`Analyte 2`[!(is.na(data$`Analyte 2`))][1],
-        AnalyteGroup == "3" ~ data$`Analyte 3`[!(is.na(data$`Analyte 3`))][1],
-        AnalyteGroup == "4" ~ data$`Analyte 4`[!(is.na(data$`Analyte 4`))][1],
-        AnalyteGroup == "5" ~ data$`Analyte 5`[!(is.na(data$`Analyte 5`))][1],
-        AnalyteGroup == "6" ~ data$`Analyte 6`[!(is.na(data$`Analyte 6`))][1],
-        AnalyteGroup == "7" ~ data$`Analyte 7`[!(is.na(data$`Analyte 7`))][1],
-        AnalyteGroup == "8" ~ data$`Analyte 8`[!(is.na(data$`Analyte 8`))][1],
-        AnalyteGroup == "9" ~ data$`Analyte 9`[!(is.na(data$`Analyte 9`))][1],
-        AnalyteGroup == "10" ~ data$`Analyte 10`[!(is.na(data$`Analyte 10`))][1],
-        AnalyteGroup == "11" ~ data$`Analyte 11`[!(is.na(data$`Analyte 11`))][1],
-        AnalyteGroup == "12" ~ data$`Analyte 12`[!(is.na(data$`Analyte 12`))][1],
-        AnalyteGroup == "13" ~ data$`Analyte 13`[!(is.na(data$`Analyte 13`))][1],
-        AnalyteGroup == "14" ~ data$`Analyte 14`[!(is.na(data$`Analyte 14`))][1],
-        AnalyteGroup == "15" ~ data$`Analyte 15`[!(is.na(data$`Analyte 15`))][1]
-      )
-    )
-  data_long$`Study ID` <- study_id
-  data_long <- data_long[!is.na(data_long$Value), ]
-
-  final_DTA <- data_long |>
-    select(`Sample Index`, `Study ID`, `Sponsor Sample Barcode`, `Subject ID`, `Sex`,
-           `Group or Route`, `Treatment or Time Point`, `Matrix`,
-           `Collection Date (mm/dd/yyyy)`, `Date Received (mm/dd/yyyy)`,
-           `Test Name`, Value, Unit, `LLOQ`, `ULOQ`, `ULOQU`, Notes
-    ) |>
-    rename(
-      `Nextcea Sample ID` = `Sample Index`,
-      `Gender` = `Sex`,
-      `Group` = `Group or Route`,
-      `Visit Name` = `Treatment or Time Point`,
-      `Sample Type` = `Matrix`,
-      `Sample Collection Date` = `Collection Date (mm/dd/yyyy)`,
-      `Nextcea Received Date` = `Date Received (mm/dd/yyyy)`,
-      `Test Result` = Value,
-      `Test Result Unit` = Unit,
-      `Lab Test LLOQ` = `LLOQ`,
-      `Lab Test ULOQ` = `ULOQ`,
-      `LLOQ/ULOQ Units` = `ULOQU`,
-      `Comments` = Notes
-    )
-
-  testdate <- read_excel(test_date) |>
-    select(`Data Acquisition Date`, `Notes`) |>
-    rename(`Sample Test Date` = `Data Acquisition Date`)
+  info_table <- GET_SAMP_ExpmtInfo(site, project, username, password)
   expand_ranges <- function(data) {
     data <- gsub("[^0-9#,-]", "", data)
     data <- unlist(strsplit(data, ","))
@@ -101,14 +42,76 @@ DTA <- function (
     unlist(expanded)
   }
 
-  expanded_data <- testdate |>
+  expanded_data <- info_table |>
     rowwise() |>
-    mutate(`Nextcea Sample ID` = list(expand_ranges(Notes))) |>
-    unnest(cols = c(`Nextcea Sample ID`)) |>
-    select(`Nextcea Sample ID`, `Sample Test Date`)
-  expanded_data$`Nextcea Sample ID` <- as.character(expanded_data$`Nextcea Sample ID`)
+    mutate(NXC_SAMPLE_INDEX = list(expand_ranges(NOTES))) |>
+    unnest(cols = c(NXC_SAMPLE_INDEX)) |>
+    select(-NOTES) |>
+    select(NXC_SAMPLE_INDEX, everything())
+  expanded_data$NXC_SAMPLE_INDEX <- as.character(expanded_data$NXC_SAMPLE_INDEX)
 
-  final_DTA <- left_join(final_DTA, expanded_data, by = "Nextcea Sample ID")
+  sample_lot <- GET_PROJ_SampleLot(site, project, username, password)
+
+  data <- left_join(sample_lot, expanded_data, by = "NXC_SAMPLE_INDEX")
+
+  colnames(data)[colnames(data) == "Analyte_Result_Comment"] <- "Analysis Result Comment"
+
+  data_long <- data |>
+    pivot_longer(
+      cols = starts_with("ANALYTE_"),
+      names_to = c("AnalyteGroup", ".value"),
+      names_pattern = "ANALYTE_(\\d+)_(.+)"
+    )
+
+  data_long <- data_long |>
+    mutate(
+      `Test Name` = case_when(
+        AnalyteGroup == "1" ~ data$`ANALYTE_1`[!(is.na(data$`ANALYTE_1`))][1],
+        AnalyteGroup == "2" ~ data$`ANALYTE_2`[!(is.na(data$`ANALYTE_2`))][1],
+        AnalyteGroup == "3" ~ data$`ANALYTE_3`[!(is.na(data$`ANALYTE_3`))][1],
+        AnalyteGroup == "4" ~ data$`ANALYTE_4`[!(is.na(data$`ANALYTE_4`))][1],
+        AnalyteGroup == "5" ~ data$`ANALYTE_5`[!(is.na(data$`ANALYTE_5`))][1],
+        AnalyteGroup == "6" ~ data$`ANALYTE_6`[!(is.na(data$`ANALYTE_6`))][1],
+        AnalyteGroup == "7" ~ data$`ANALYTE_7`[!(is.na(data$`ANALYTE_7`))][1],
+        AnalyteGroup == "8" ~ data$`ANALYTE_8`[!(is.na(data$`ANALYTE_8`))][1],
+        AnalyteGroup == "9" ~ data$`ANALYTE_9`[!(is.na(data$`ANALYTE_9`))][1],
+        AnalyteGroup == "10" ~ data$`ANALYTE_10`[!(is.na(data$`ANALYTE_10`))][1],
+        AnalyteGroup == "11" ~ data$`ANALYTE_11`[!(is.na(data$`ANALYTE_11`))][1],
+        AnalyteGroup == "12" ~ data$`ANALYTE_12`[!(is.na(data$`ANALYTE_12`))][1],
+        AnalyteGroup == "13" ~ data$`ANALYTE_13`[!(is.na(data$`ANALYTE_13`))][1],
+        AnalyteGroup == "14" ~ data$`ANALYTE_14`[!(is.na(data$`ANALYTE_14`))][1],
+        AnalyteGroup == "15" ~ data$`ANALYTE_15`[!(is.na(data$`ANALYTE_15`))][1]
+      )
+    )
+
+  data_long$`Study ID` <- study_id
+  data_long <- data_long[!is.na(data_long$VALUE), ]
+  data_long$ULOQU <- data_long$UNIT
+
+  final_DTA <- data_long |>
+    select(`NXC_SAMPLE_INDEX`, `Study ID`, `SPONSOR_SAMPLE_BARCODE`,
+           `NXC_SUBJECT`, `NXC_SEX`,
+           `NXC_GROUP`, `NXC_TREATMENT`, `NXC_MATRIX`,
+           `NXC_COLLECTION_DATE`, `DATE_RECEIVED`, `Sample Test Date`,
+           `Test Name`, VALUE, UNIT, LLOQ, ULOQ, ULOQU, NOTES
+    ) |>
+    rename(
+      `Nextcea Sample ID` = `NXC_SAMPLE_INDEX`,
+      `Sponsor Sample Barcode` = `SPONSOR_SAMPLE_BARCODE`,
+      `Subject ID` = `NXC_SUBJECT`,
+      `Gender` = `NXC_SEX`,
+      `Group` = `NXC_GROUP`,
+      `Visit Name` = `NXC_TREATMENT`,
+      `Sample Type` = `NXC_MATRIX`,
+      `Sample Collection Date` = `NXC_COLLECTION_DATE`,
+      `Nextcea Received Date` = `DATE_RECEIVED`,
+      `Test Result` = VALUE,
+      `Test Result Unit` = UNIT,
+      `Lab Test LLOQ` = `LLOQ`,
+      `Lab Test ULOQ` = `ULOQ`,
+      `LLOQ/ULOQ Units` = `ULOQU`,
+      `Comments` = NOTES
+    )
 
   if (version == "basic") {
     final_DTA <- final_DTA |>

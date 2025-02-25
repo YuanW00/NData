@@ -3,7 +3,7 @@
 export(DTA)
 export(GET_LCMS_SampleBarcodes)
 export(GET_PROJ_SampleLot)
-export(GET_SAMP_TestDate)
+export(GET_SAMP_ExpInfo)
 export(OS_to_LIMS)
 export(READ_OS_File)
 export(SAVE_PROJ_LotPage)
