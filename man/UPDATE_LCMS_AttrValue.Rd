@@ -2,7 +2,7 @@
 % Please edit documentation in R/UPDATE_LCMS_AttrValue.R
 \name{UPDATE_LCMS_AttrValue}
 \alias{UPDATE_LCMS_AttrValue}
-\title{Sample Barcode Query}
+\title{LCMS TestDate LLOQ Update}
 \usage{
 UPDATE_LCMS_AttrValue(site, username, password, ept_barcode, OS_file)
 }
@@ -21,7 +21,7 @@ UPDATE_LCMS_AttrValue(site, username, password, ept_barcode, OS_file)
 Return the updated information from PFS
 }
 \description{
-Get LCMS Sample Barcode from LIMS
+Update LCMS Testdate, LLOQ, ULOQ Values
 }
 \examples{
 UPDATE_LCMS_AttrValue("Test", "user", "password", "LCMS1", "LCMS1OS.txt");

@@ -1,6 +1,6 @@
-#' Sample Barcode Query
+#' LCMS TestDate LLOQ Update
 #'
-#' Get LCMS Sample Barcode from LIMS
+#' Update LCMS Testdate, LLOQ, ULOQ Values
 #' @import httr
 #' @import jsonlite
 #' @import dplyr

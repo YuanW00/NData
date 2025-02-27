@@ -1,0 +1,78 @@
+#' Entity Atrribute Update
+#'
+#' Edit Entity Attributes' Value
+#' @import httr
+#' @import jsonlite
+#' @import dplyr
+#' @import purrr
+#' @import stringr
+#' @import lubridate
+#' @param site The PFS version need to work on: "Test" or "Production"
+#' @param username The username to log in PFS
+#' @param password The password to log in PFS
+#' @param entity The Entity name
+#' @param barcode The barcode of the entity
+#' @param attributes The vector of attribute names need to be edited
+#' @param values The vector of updated values, order matches to attributes
+#' @return Return the updated information from PFS
+#' @examples
+#' UPDATE_ENTITY_AttrValue("Test", "user", "password", "Entity", "entity123", c("A", "B"), c("1", "2"));
+#' @export
+UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
+                                    barcode, attributes, values) {
+
+  test <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/"
+  prod <- "https://na1.platformforscience.com/Nextcea+Prod/odata/"
+
+  entity <- gsub("\\s+", "_", toupper(entity))
+
+  # Get values from LIMS
+  if (site == "Test") {
+    url <- paste0(test, entity, "('", barcode, "')")
+  } else if (site == "Production") {
+    url <- paste0(prod, entity, "('", barcode, "')")
+  }
+  response <- GET(url, authenticate(username, password))
+  data <- fromJSON(content(response, "text"))
+
+  # Update Values
+  for (i in 1:length(attributes)) {
+    col_name <- gsub("\\s+", "_", toupper(attributes[i]))
+    col_value <- values[i]
+    if (col_name %in% names(data)) {
+      data[[col_name]] <- ifelse(is.na(col_value), data[[col_name]], col_value)
+    } else {
+      message1 <- paste0("Entity not found: ", attributes[i])
+    }
+  }
+
+  # Upload new values
+  update_payload <- toJSON(data, auto_unbox = T, null = "null")
+  header <- c("Content-Type" = "application/json", "If-Match" = "*")
+  put_response <- PUT(url,
+                      body = update_payload,
+                      authenticate(username, password),
+                      add_headers(header))
+
+  if (put_response[["status_code"]] == 200) {
+    message2 = "Updating completed!"
+  } else {
+    message2 = "Updating failed!"
+  }
+
+  # Get updated values from LIMS
+  if (site == "Test") {
+    get_url <- paste0(test, entity, "?$filter=Name%20eq%20'", barcode, "'")
+  } else if (site == "Production") {
+    get_url <- paste0(prod, entity, "?$filter=Name%20eq%20'", barcode, "'")
+  }
+  new_response <- GET(get_url, authenticate(username, password))
+  new_data <- fromJSON(content(new_response, "text"))
+  cols <- gsub("\\s+", "_", toupper(attributes))
+  new_df <- new_data$value |>
+    select(Name, intersect(cols, names(new_data$value)))
+
+  result <- list(message2, new_df, message1)
+  return(result)
+
+}
