@@ -36,13 +36,14 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
   data <- fromJSON(content(response, "text"))
 
   # Update Values
+  message1 <- NULL
   for (i in 1:length(attributes)) {
     col_name <- gsub("\\s+", "_", toupper(attributes[i]))
     col_value <- values[i]
     if (col_name %in% names(data)) {
       data[[col_name]] <- ifelse(is.na(col_value), data[[col_name]], col_value)
     } else {
-      message1 <- paste0("Entity not found: ", attributes[i])
+      message1 <- c(message1, attributes[i])
     }
   }
 
@@ -72,7 +73,13 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
   new_df <- new_data$value |>
     select(Name, intersect(cols, names(new_data$value)))
 
-  result <- list(message2, new_df, message1)
+  if (is.null(message1)) {
+    result <- list(message2, new_df)
+  } else {
+    message1 <- paste0("Entity Not Found: ", paste(message1, collapse = ", "))
+    result <- list(message1, message2, new_df)
+  }
+
   return(result)
 
 }
