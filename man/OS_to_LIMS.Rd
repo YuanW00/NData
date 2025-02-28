@@ -4,10 +4,10 @@
 \alias{OS_to_LIMS}
 \title{OS Result Upload}
 \usage{
-OS_to_LIMS(OS_file, site, ept_barcode, username, password)
+OS_to_LIMS(os, site, ept_barcode, username, password)
 }
 \arguments{
-\item{OS_file}{The data file that is exported from SCIEX OS analyte and saved as .txt}
+\item{os}{The data frame that is exported from SCIEX OS analyte and read in R by READ_OS_File function}
 
 \item{site}{The PFS version need to work on: "Test" or "Production"}
 

@@ -3,7 +3,7 @@
 #' Convert OS file to LIMS LCMS template format
 #' @import dplyr
 #' @import readr
-#' @param OS_file The data file that is exported from SCIEX OS analyte and saved as .txt
+#' @param os The data frame that is exported from SCIEX OS analyte and read in R by READ_OS_File function
 #' @param site The PFS version need to work on: "Test" or "Production"
 #' @param ept_barcode The Experiment Barcode of samples
 #' @param username The username to log in PFS
@@ -12,15 +12,19 @@
 #' @examples
 #' OS_to_LIMS("OS.txt", "Test", "LCMS1", "user", "password");
 #' @export
-OS_to_LIMS <- function(OS_file, site, ept_barcode, username, password) {
-
+OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
                   paste0("Analyte ", seq(1:15)),
                   paste0("Analyte ", seq(1:15), " Value"),
                   paste0("Analyte ", seq(1:15), " Unit")
   )
 
-  os <- READ_OS_File(OS_file)
+  analyte_cols <- c(paste0("Analyte ", seq(1:15)),
+                    paste0("Analyte ", seq(1:15), " Value"),
+                    paste0("Analyte ", seq(1:15), " Unit")
+  )
+
+  # os <- READ_OS_File(OS_file)
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
       select(-EXPT_SAMPLE_BARCODE)
@@ -28,7 +32,8 @@ OS_to_LIMS <- function(OS_file, site, ept_barcode, username, password) {
 
   os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
-    select(intersect(col_select, colnames(os)))
+    select(intersect(col_select, colnames(os))) |>
+    filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
 
   lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password) |>
     select(-Active)
@@ -103,18 +108,11 @@ OS_to_LIMS <- function(OS_file, site, ept_barcode, username, password) {
 
   # Check if there is missing sample in the OS file
   if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    alert_df <- rbind(alert_df,
-                      data.frame(Alert_Check_Result = "Alert 3",
-                                 Content = "Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
-                      )
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 3", Content = "Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file."))
     # print("Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
   }
-
   if (any(str_detect(upload$Match_Name, "Not Match") & !is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    alert_df <- rbind(alert_df,
-                      data.frame(Alert_Check_Result = "Alert 4",
-                                 Content = "Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
-                      )
+    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 4", Content = "Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file."))
     # print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
   }
 
@@ -124,7 +122,6 @@ OS_to_LIMS <- function(OS_file, site, ept_barcode, username, password) {
     lot_col <- paste0(prefix, " Update Lot")
     upload[[analyte_col]] <- ifelse(is.na(upload[[col]]), "", upload[[analyte_col]])
   }
-
   upload[is.na(upload)] <- ""
   upload <- upload |>
     select(-c(order.x, order.y))
@@ -134,7 +131,5 @@ OS_to_LIMS <- function(OS_file, site, ept_barcode, username, password) {
     result_dataset = upload
   )
   return(result)
-  # output_name <- sub("\\.txt$", "", Template_file)
-  # write.table(upload, paste0(output_name, "_upload.txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
 }
