@@ -6,7 +6,6 @@
 #' @import dplyr
 #' @import purrr
 #' @import stringr
-#' @import lubridate
 #' @param site The PFS version need to work on: "Test" or "Production"
 #' @param username The username to log in PFS
 #' @param password The password to log in PFS
@@ -74,10 +73,12 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
     select(Name, intersect(cols, names(new_data$value)))
 
   if (is.null(message1)) {
-    result <- list(message2, new_df)
+    result <- list(message = message2,
+                   df = new_df)
   } else {
     message1 <- paste0("Entity Not Found: ", paste(message1, collapse = ", "))
-    result <- list(message1, message2, new_df)
+    result <- list(message = c(message1, message2),
+                   df = new_df)
   }
 
   return(result)
