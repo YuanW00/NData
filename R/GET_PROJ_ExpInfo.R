@@ -1,6 +1,6 @@
-#' Sample Experiment Info Query
+#' Project Experiment Info Query
 #'
-#' Get Sample Experiment Info from PFS
+#' Get Project Experiment Info from PFS
 #' @import httr
 #' @import jsonlite
 #' @import dplyr
@@ -10,11 +10,11 @@
 #' @param project The Project Barcode to upload the analyte result
 #' @param username The username to log in PFS
 #' @param password The password to log in PFS
-#' @return Return one data frame including sample index, test date, and LLOQ/ULOQ
+#' @return Return one data frame including sample index, test date, and other info
 #' @examples
-#' GET_SAMP_ExpmtInfo("Test", "NP1", "user", "password");
+#' GET_PROJ_ExpmtInfo("Test", "NP1", "user", "password");
 #' @export
-GET_SAMP_ExpInfo <- function (site, project, username, password) {
+GET_PROJ_ExpInfo <- function (site, project, username, password) {
   if (site == "Test") {
 
     url <- paste0("https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/NEXTCEA_PROJECT('",
@@ -24,14 +24,11 @@ GET_SAMP_ExpInfo <- function (site, project, username, password) {
                   project, "')/REV_EXPERIMENT_PROJECT")
   }
 
-  cols_need <- c("NOTES", "DATE", paste0("LLOQ_ANALYTE_", seq(1:15)), paste0("ULOQ_ANALYTE_", seq(1:15)))
-
   info_table <- NULL
   while (TRUE) {
     response <- GET(url, authenticate(username, password))
     data <- fromJSON(content(response, "text"))
-    df <- data$value |>
-      select(intersect(cols_need, names(data$value)))
+    df <- data$value
     info_table <- as.data.frame(rbind(info_table, df))
     if (!is.null(data[["@odata.nextLink"]]) ) {
       url <- data[["@odata.nextLink"]]
