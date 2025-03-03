@@ -17,11 +17,13 @@
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
   if (site == "Test") {
-    data("test")
+    # data("test")
+    eval(test)
     proj_pages <- test$page[test$PROJECT_Barcode == project]
     int_url <- "https://na1test.platformforscience.com/odata/NEXTCEA_SAMPLE_LOT?tenant=Nextcea_Test_28Mar2024&$expand=PROJECT&$skiptoken="
   } else if (site == "Production") {
-    data("prod")
+    # data("prod")
+    eval(prod)
     proj_pages <- prod$page[prod$PROJECT_Barcode == project]
     int_url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken="
   } else {
