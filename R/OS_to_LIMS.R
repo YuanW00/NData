@@ -25,7 +25,7 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
                     paste0("Analyte ", seq(1:15), " Unit")
   )
 
-  os <- READ_OS_File(OS_file)
+  # os <- READ_OS_File(OS_file)
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
       select(-EXPT_SAMPLE_BARCODE)
