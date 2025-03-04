@@ -16,7 +16,7 @@
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  devtools::load_all()
+  load("R/sysdata.rda")
   if (site == "Test") {
     # data("test", package = "NData", envir = environment())
     # test <- force(test)
