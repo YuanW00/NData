@@ -15,8 +15,8 @@
 #' @param column_choice The required columns needs to be exported in the report for cilent
 #' @return Return result data frame in the required data transfer formatting
 #' @examples
-#' DTA(study_id = "STD1234", version = "basic", data_file = "result", test_date = "Testdate")
-#' DTA(study_id = "STD1234", version = "plus", data_file = "result", test_date = "Testdate");
+#' DTA(study_id = "STD1234", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
+#' DTA(study_id = "STD1234", version = "plus", site = "Test", project = "NP123", username = "user", password = "1234");
 #' @export
 DTA <- function (
     study_id, version = "basic",
@@ -27,7 +27,10 @@ DTA <- function (
                       "Test Result Unit", "Comments")
 ) {
 
-  info_table <- GET_SAMP_ExpmtInfo(site, project, username, password)
+  info_table <- GET_PROJ_ExpInfo(site, project, username, password) |>
+    filter(Active == TRUE) |>
+    select(`Sample Test Date`, NOTES) |>
+    filter(!is.na(NOTES))
   expand_ranges <- function(data) {
     data <- gsub("[^0-9#,-]", "", data)
     data <- unlist(strsplit(data, ","))
@@ -86,10 +89,52 @@ DTA <- function (
 
   data_long$`Study ID` <- study_id
   data_long <- data_long[!is.na(data_long$VALUE), ]
-  data_long$ULOQU <- data_long$UNIT
 
-  final_DTA <- data_long |>
-    select(`NXC_SAMPLE_INDEX`, `Study ID`, `SPONSOR_SAMPLE_BARCODE`,
+  range_table <- GET_PROJ_Range(site="Test", username, password) |>
+    group_by(`TEST_NAME`, MATRIX) |>
+    mutate(duplicate = n() > 1,
+           is103 = grepl("103", ASSAY)) |>
+    mutate(prevail = case_when(
+      duplicate == F | (duplicate == T & is103 == T) ~ T,
+      (duplicate == T & is103 == F) ~ F
+    ),
+    other = case_when(
+      is103 == F ~ T,
+      is103 == T ~ F
+    )) |>
+    select(-c(duplicate, is103))
+
+  client <- sub("_.*", "", unique(sample_lot$PROJECT_Name))
+  test_name <- unique(data_long$`Test Name`)
+  species <- unique(sample_lot$NXC_SPECIES)
+
+  if (client == 103) {
+    proj_range <- range_table |>
+      filter(Active == TRUE) |>
+      filter(prevail == T) |>
+      filter(SPECIES %in% species) |>
+      filter(TEST_NAME %in% test_name) |>
+      select(TEST_NAME, SPECIES, MATRIX, LLOQ, ULOQ, ULOQU) |>
+      rename(NXC_MATRIX = MATRIX,
+             NXC_SPECIES = SPECIES,
+             `Test Name` = TEST_NAME)
+  } else {
+    proj_range <- range_table |>
+      filter(Active == TRUE) |>
+      filter(other == T) |>
+      filter(SPECIES %in% species) |>
+      filter(TEST_NAME %in% test_name) |>
+      select(TEST_NAME, SPECIES, MATRIX, LLOQ, ULOQ, ULOQU)|>
+      rename(NXC_MATRIX = MATRIX,
+             NXC_SPECIES = SPECIES,
+             `Test Name` = TEST_NAME)
+  }
+
+  data_long_p <- left_join(data_long, proj_range,
+                           by = c("NXC_MATRIX", "NXC_SPECIES", "Test Name"))
+
+  final_DTA <- data_long_p |>
+    select(`NXC_SAMPLE_INDEX`, `Study ID`, NXC_SPONSOR_SAMPLE_ID, `SPONSOR_SAMPLE_BARCODE`,
            `NXC_SUBJECT`, `NXC_SEX`,
            `NXC_GROUP`, `NXC_TREATMENT`, `NXC_MATRIX`,
            `NXC_COLLECTION_DATE`, `DATE_RECEIVED`, `Sample Test Date`,
@@ -97,6 +142,7 @@ DTA <- function (
     ) |>
     rename(
       `Nextcea Sample ID` = `NXC_SAMPLE_INDEX`,
+      `Sponsor Sample ID` = NXC_SPONSOR_SAMPLE_ID,
       `Sponsor Sample Barcode` = `SPONSOR_SAMPLE_BARCODE`,
       `Subject ID` = `NXC_SUBJECT`,
       `Gender` = `NXC_SEX`,
@@ -107,9 +153,9 @@ DTA <- function (
       `Nextcea Received Date` = `DATE_RECEIVED`,
       `Test Result` = VALUE,
       `Test Result Unit` = UNIT,
-      `Lab Test LLOQ` = `LLOQ`,
-      `Lab Test ULOQ` = `ULOQ`,
-      `LLOQ/ULOQ Units` = `ULOQU`,
+      `Lab Test LLOQ` = LLOQ,
+      `Lab Test ULOQ` = ULOQ,
+      `LLOQ/ULOQ Units` = ULOQU,
       `Comments` = NOTES
     )
 
@@ -131,4 +177,5 @@ DTA <- function (
   }
 
   return(final_DTA)
+
 }

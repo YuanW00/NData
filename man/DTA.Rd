@@ -38,6 +38,6 @@ Return result data frame in the required data transfer formatting
 Convert Sample Lot Result to DTA format
 }
 \examples{
-DTA(study_id = "STD1234", version = "basic", data_file = "result", test_date = "Testdate")
-DTA(study_id = "STD1234", version = "plus", data_file = "result", test_date = "Testdate");
+DTA(study_id = "STD1234", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
+DTA(study_id = "STD1234", version = "plus", site = "Test", project = "NP123", username = "user", password = "1234");
 }
