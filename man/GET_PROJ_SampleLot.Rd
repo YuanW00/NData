@@ -22,5 +22,5 @@ Return one data frame including all the sample information in the sample lot
 Get Sample Lot Information from PFS
 }
 \examples{
-GET_LCMS_SampleBarcodes("Test", "NP1", "user", "password");
+GET_PROJ_SampleLot("Test", "NP1", "user", "password");
 }
