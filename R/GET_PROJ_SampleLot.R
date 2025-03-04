@@ -16,7 +16,6 @@
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  # load("R/sysdata.rda")
   if (site == "Test") {
     data("test", package = "NData", envir = environment())
     test <- force(test)
@@ -32,25 +31,22 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
   }
 
   sample_lot <- NULL
-
-  if (is.null(proj_pages)) {
-    url <- paste0(int_url, max(page_list$page))
-    while (TRUE) {
-      response <- GET(url, authenticate(username, password))
-      data <- fromJSON(content(response, "text"))
-      df <- data$value |>
-        unnest(where(is.list), names_sep = "_") |>
-        filter(PROJECT_Barcode == project)
-      sample_lot <- as.data.frame(rbind(sample_lot, df))
-      if (!is.null(data[["@odata.nextLink"]]) ) {
-        url <- data[["@odata.nextLink"]]
-      } else {
-        break
-      }
+  url <- paste0(int_url, max(page_list$page))
+  while (TRUE) {
+    response <- GET(url, authenticate(username, password))
+    data <- fromJSON(content(response, "text"))
+    df <- data$value |>
+      unnest(where(is.list), names_sep = "_") |>
+      filter(PROJECT_Barcode == project)
+    sample_lot <- as.data.frame(rbind(sample_lot, df))
+    if (!is.null(data[["@odata.nextLink"]]) ) {
+      url <- data[["@odata.nextLink"]]
+    } else {
+      break
     }
+  }
 
-  } else {
-
+  if (!is.null(proj_pages)) {
     for (i in proj_pages) {
       url <- paste0(int_url, i)
       response <- GET(url, authenticate(username, password))
@@ -71,4 +67,3 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
 
   return(sample_lot)
 }
-
