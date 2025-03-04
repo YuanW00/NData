@@ -16,15 +16,15 @@
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  load("R/sysdata.rda")
+  # load("R/sysdata.rda")
   if (site == "Test") {
-    # data("test", package = "NData", envir = environment())
-    # test <- force(test)
+    data("test", package = "NData", envir = environment())
+    test <- force(test)
     proj_pages <- test$page[test$PROJECT_Barcode == project]
     int_url <- "https://na1test.platformforscience.com/odata/NEXTCEA_SAMPLE_LOT?tenant=Nextcea_Test_28Mar2024&$expand=PROJECT&$skiptoken="
   } else if (site == "Production") {
-    # data("prod", package = "NData", envir = environment())
-    # prod <- force(prod)
+    data("prod", package = "NData", envir = environment())
+    prod <- force(prod)
     proj_pages <- prod$page[prod$PROJECT_Barcode == project]
     int_url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken="
   } else {
