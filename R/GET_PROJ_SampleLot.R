@@ -12,7 +12,7 @@
 #' @param password The password to log in PFS
 #' @return Return one data frame including all the sample information in the sample lot
 #' @examples
-#' GET_LCMS_SampleBarcodes("Test", "NP1", "user", "password");
+#' GET_PROJ_SampleLot("Test", "NP1", "user", "password");
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
@@ -21,17 +21,19 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
     test <- force(test)
     proj_pages <- test$page[test$PROJECT_Barcode == project]
     int_url <- "https://na1test.platformforscience.com/odata/NEXTCEA_SAMPLE_LOT?tenant=Nextcea_Test_28Mar2024&$expand=PROJECT&$skiptoken="
+    last_page <- max(test$page)
   } else if (site == "Production") {
     data("prod", package = "NData", envir = environment())
     prod <- force(prod)
     proj_pages <- prod$page[prod$PROJECT_Barcode == project]
     int_url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken="
+    last_page <- max(prod$page)
   } else {
     print("Wrong Site!")
   }
 
   sample_lot <- NULL
-  url <- paste0(int_url, max(page_list$page))
+  url <- paste0(int_url, last_page)
   while (TRUE) {
     response <- GET(url, authenticate(username, password))
     data <- fromJSON(content(response, "text"))
