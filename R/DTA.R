@@ -176,6 +176,13 @@ DTA <- function (
       select(any_of(column_choice))
   }
 
-  return(final_DTA)
+  message_result <- "Processing complete. Results are displayed below."
+
+  return(
+    list(
+      message = message_result,
+      final_df = as.data.frame(final_DTA)
+      )
+    )
 
 }
