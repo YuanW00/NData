@@ -20,13 +20,15 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
     data("test", package = "NData", envir = environment())
     test <- force(test)
     proj_pages <- test$page[test$PROJECT_Barcode == project]
-    int_url <- "https://na1test.platformforscience.com/odata/NEXTCEA_SAMPLE_LOT?tenant=Nextcea_Test_28Mar2024&$expand=PROJECT&$skiptoken="
+    data("t_url", package = "NData", envir = environment())
+    int_url <- paste0(t_url, "NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken=")
     last_page <- max(test$page)
   } else if (site == "Production") {
     data("prod", package = "NData", envir = environment())
     prod <- force(prod)
     proj_pages <- prod$page[prod$PROJECT_Barcode == project]
-    int_url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken="
+    data("p_url", package = "NData", envir = environment())
+    int_url <- paste0(p_url, "NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$skiptoken=")
     last_page <- max(prod$page)
   } else {
     print("Wrong Site!")
