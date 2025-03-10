@@ -20,16 +20,15 @@
 UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
                                     barcode, attributes, values) {
 
-  test <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/"
-  prod <- "https://na1.platformforscience.com/Nextcea+Prod/odata/"
-
   entity <- gsub("\\s+", "_", toupper(entity))
 
   # Get values from LIMS
   if (site == "Test") {
-    url <- paste0(test, entity, "('", barcode, "')")
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, entity, "('", barcode, "')")
   } else if (site == "Production") {
-    url <- paste0(prod, entity, "('", barcode, "')")
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, entity, "('", barcode, "')")
   }
   response <- GET(url, authenticate(username, password))
   data <- fromJSON(content(response, "text"))
@@ -62,9 +61,9 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
 
   # Get updated values from LIMS
   if (site == "Test") {
-    get_url <- paste0(test, entity, "?$filter=Name%20eq%20'", barcode, "'")
+    get_url <- paste0(t_url, entity, "?$filter=Name%20eq%20'", barcode, "'")
   } else if (site == "Production") {
-    get_url <- paste0(prod, entity, "?$filter=Name%20eq%20'", barcode, "'")
+    get_url <- paste0(p_url, entity, "?$filter=Name%20eq%20'", barcode, "'")
   }
   new_response <- GET(get_url, authenticate(username, password))
   new_data <- fromJSON(content(new_response, "text"))

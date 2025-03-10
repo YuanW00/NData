@@ -15,9 +15,11 @@
 #' @export
 GET_PROJ_Range <- function (site = "Test", username, password) {
   if (site == "Test") {
-    url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/LLOQ_AND_ULOQ_RANGE"
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, "LLOQ_AND_ULOQ_RANGE")
   } else if (site == "Production") {
-    url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/LLOQ_AND_ULOQ_RANGE"
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, "LLOQ_AND_ULOQ_RANGE")
   }
 
   range_table <- NULL

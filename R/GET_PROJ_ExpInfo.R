@@ -16,12 +16,11 @@
 #' @export
 GET_PROJ_ExpInfo <- function (site, project, username, password) {
   if (site == "Test") {
-
-    url <- paste0("https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/NEXTCEA_PROJECT('",
-                  project, "')/REV_EXPERIMENT_PROJECT")
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, "NEXTCEA_PROJECT('", project, "')/REV_EXPERIMENT_PROJECT")
   } else if (site == "Production") {
-    url <- paste0("https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_PROJECT('",
-                  project, "')/REV_EXPERIMENT_PROJECT")
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, "NEXTCEA_PROJECT('", project, "')/REV_EXPERIMENT_PROJECT")
   }
 
   info_table <- NULL

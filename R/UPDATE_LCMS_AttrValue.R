@@ -57,9 +57,11 @@ UPDATE_LCMS_AttrValue <- function(site, username, password, ept_barcode, OS_file
 
   # Get values from LIMS
   if (site == "Test") {
-    url <- paste0("https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/LC_MSMS_EXPERIMENT('", ept_barcode, "')")
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, "LC_MSMS_EXPERIMENT('", ept_barcode, "')")
   } else if (site == "Production") {
-    url <- paste0("https://na1.platformforscience.com/Nextcea+Prod/odata/LC_MSMS_EXPERIMENT('", ept_barcode, "')")
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, "LC_MSMS_EXPERIMENT('", ept_barcode, "')")
   }
   response <- GET(url, authenticate(username, password))
   data <- fromJSON(content(response, "text"))
@@ -90,9 +92,9 @@ UPDATE_LCMS_AttrValue <- function(site, username, password, ept_barcode, OS_file
 
   # Get updated values from LIMS
   if (site == "Test") {
-    get_url <- paste0("https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/LC_MSMS_EXPERIMENT?$filter=Name%20eq%20'", ept_barcode, "'")
+    get_url <- paste0(t_url, "LC_MSMS_EXPERIMENT?$filter=Name%20eq%20'", ept_barcode, "'")
   } else if (site == "Production") {
-    get_url <- paste0("https://na1.platformforscience.com/Nextcea+Prod/odata/LC_MSMS_EXPERIMENT?$filter=Name%20eq%20'", ept_barcode, "'")
+    get_url <- paste0(p_url, "LC_MSMS_EXPERIMENT?$filter=Name%20eq%20'", ept_barcode, "'")
   }
   new_response <- GET(get_url, authenticate(username, password))
   new_data <- fromJSON(content(new_response, "text"))

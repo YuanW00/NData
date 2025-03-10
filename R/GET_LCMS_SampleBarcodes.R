@@ -14,14 +14,13 @@
 #' GET_LCMS_SampleBarcodes("Test", "LCMS1", "user", "password");
 #' @export
 GET_LCMS_SampleBarcodes <- function (site, ept_barcode, username, password) {
-  test <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/"
-  prod <- "https://na1.platformforscience.com/Nextcea+Prod/odata/"
-  experiment <- paste0("LC_MSMS_EXPERIMENT('", ept_barcode, "')")
-  suffix <- "/EXPERIMENT_SAMPLES?$expand=ENTITY"
+  experiment <- paste0("LC_MSMS_EXPERIMENT('", ept_barcode, "')/EXPERIMENT_SAMPLES?$expand=ENTITY")
   if (site == "Test") {
-    url <- paste0(test, experiment, suffix)
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, experiment)
   } else if (site == "Production") {
-    url <- paste0(prod, experiment, suffix)
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, experiment)
   } else {
     print("Wrong Site!")
   }

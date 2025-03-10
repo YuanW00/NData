@@ -16,9 +16,11 @@
 SAVE_PROJ_LotPage <- function(site, username, password) {
 
   if (site == "Test") {
-    url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT"
+    data("t_url", package = "NData", envir = environment())
+    url <- paste0(t_url, "NEXTCEA_SAMPLE_LOT?$expand=PROJECT")
   } else if (site == "Production") {
-    url <- "https://na1.platformforscience.com/Nextcea+Prod/odata/NEXTCEA_SAMPLE_LOT?$expand=PROJECT"
+    data("p_url", package = "NData", envir = environment())
+    url <- paste0(p_url, "NEXTCEA_SAMPLE_LOT?$expand=PROJECT")
   }
 
   i <- 0
