@@ -59,6 +59,8 @@ DTA <- function (
 
   colnames(data)[colnames(data) == "Analyte_Result_Comment"] <- "Analysis Result Comment"
 
+  message1 <- paste0("Total number of sample lot list: ", length(data$NXC_SAMPLE_INDEX))
+
   data_long <- data |>
     pivot_longer(
       cols = starts_with("ANALYTE_"),
@@ -181,6 +183,7 @@ DTA <- function (
   return(
     list(
       message = message_result,
+      lot_length = message1,
       final_df = as.data.frame(final_DTA)
       )
     )
