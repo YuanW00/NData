@@ -11,7 +11,7 @@ DTA(
   project,
   username,
   password,
-  column_choice = c("Study ID", "Sponsor Sample Barcode", "Subject ID", "Visit Name",
+  column_choice = c("Study ID", "Sponsor Sample ID", "Subject ID", "Visit Name",
     "Sample Type", "Sample Test Date", "Test Name", "Test Result", "Test Result Unit",
     "Comments")
 )

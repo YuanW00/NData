@@ -21,7 +21,7 @@
 DTA <- function (
     study_id, version = "basic",
     site, project, username, password,
-    column_choice = c("Study ID", "Sponsor Sample Barcode",
+    column_choice = c("Study ID", "Sponsor Sample ID",
                       "Subject ID", "Visit Name", "Sample Type",
                       "Sample Test Date", "Test Name", "Test Result",
                       "Test Result Unit", "Comments")
@@ -161,12 +161,12 @@ DTA <- function (
 
   if (version == "basic") {
     final_DTA <- final_DTA |>
-      select(`Study ID`, `Sponsor Sample Barcode`, `Subject ID`,
+      select(`Study ID`, `Sponsor Sample ID`, `Subject ID`,
              `Visit Name`, `Sample Type`, `Sample Test Date`,
              `Test Name`, `Test Result`, `Test Result Unit`, Comments)
   } else if (version == "plus") {
     final_DTA <- final_DTA |>
-      select(`Nextcea Sample ID`, `Study ID`, `Sponsor Sample Barcode`,
+      select(`Nextcea Sample ID`, `Study ID`, `Sponsor Sample ID`, `Sponsor Sample Barcode`,
              `Subject ID`, Gender, Group, `Visit Name`, `Sample Type`,
              `Sample Collection Date`, `Nextcea Received Date`,
              `Sample Test Date`, `Test Name`, `Test Result`, `Test Result Unit`,
