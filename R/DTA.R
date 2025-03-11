@@ -54,12 +54,11 @@ DTA <- function (
   expanded_data$NXC_SAMPLE_INDEX <- as.character(expanded_data$NXC_SAMPLE_INDEX)
 
   sample_lot <- GET_PROJ_SampleLot(site, project, username, password)
+  message1 <- paste0("Total number of sample lot list: ", length(sample_lot$NXC_SAMPLE_INDEX))
 
   data <- left_join(sample_lot, expanded_data, by = "NXC_SAMPLE_INDEX")
 
   colnames(data)[colnames(data) == "Analyte_Result_Comment"] <- "Analysis Result Comment"
-
-  message1 <- paste0("Total number of sample lot list: ", length(data$NXC_SAMPLE_INDEX))
 
   data_long <- data |>
     pivot_longer(
