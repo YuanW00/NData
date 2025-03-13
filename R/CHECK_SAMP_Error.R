@@ -21,8 +21,8 @@ CHECK_SAMP_Error <- function (data) {
              `Test Result Unit` == `LLOQ/ULOQ Units` & `Test Result` > `Lab Test ULOQ`)
 
   result <- list(
-    EA <- ea_df,
-    BQL <- bql
+    EA = ea_df,
+    BQL = bql
   )
 
   return(result)
