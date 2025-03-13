@@ -32,31 +32,52 @@ DTA <- function (
     select(`Sample Test Date`, NOTES) |>
     filter(!is.na(NOTES))
   expand_ranges <- function(data) {
-    data <- gsub("[^0-9#,-]", "", data)
+
+    data <- gsub("[^0-9a-zA-Z#,-]", "", data)
     data <- unlist(strsplit(data, ","))
+
     expanded <- lapply(data, function(x) {
+      x <- gsub("#", "", x)
       if (grepl("-", x)) {
-        range <- as.numeric(str_extract_all(x, "\\d+")[[1]])
-        seq(range[1], range[2])
+        parts <- unlist(strsplit(x, "-"))
+        start_num <- as.numeric(str_extract(parts[1], "\\d+"))
+        start_letter <- str_extract(parts[1], "[a-zA-Z]+$")
+        end_num <- as.numeric(str_extract(parts[2], "\\d+"))
+        end_letter <- str_extract(parts[2], "[a-zA-Z]+$")
+
+        if (is.na(start_letter) && is.na(end_letter)) {
+          as.character(seq(start_num, end_num))
+        } else if (identical(start_letter, end_letter)) {
+          paste0(seq(start_num, end_num), start_letter)
+        } else if (is.na(start_letter) && !is.na(end_letter)) {
+          paste0(seq(start_num, end_num), end_letter)
+        } else if (!is.na(start_letter) && is.na(end_letter)) {
+          paste0(seq(start_num, end_num), start_letter)
+        } else {
+          warning(paste("Letters in range", x, "are not the same. Check your input."))
+          paste0(seq(start_num, end_num), start_letter)
+        }
       } else {
-        as.numeric(str_extract_all(x, "\\d+")[[1]])
+        as.character(x)
       }
     })
-    unlist(expanded)
+
+    unlist(expanded) |> as.character()
   }
 
   expanded_data <- info_table |>
     rowwise() |>
-    mutate(NXC_SAMPLE_INDEX = list(expand_ranges(NOTES))) |>
-    unnest(cols = c(NXC_SAMPLE_INDEX)) |>
+    mutate(sample_prefix = list(expand_ranges(NOTES))) |>
+    unnest(cols = c(sample_prefix)) |>
     select(-NOTES) |>
-    select(NXC_SAMPLE_INDEX, everything())
-  expanded_data$NXC_SAMPLE_INDEX <- as.character(expanded_data$NXC_SAMPLE_INDEX)
+    select(sample_prefix, everything())
+  expanded_data$sample_prefix <- as.character(expanded_data$sample_prefix)
 
-  sample_lot <- GET_PROJ_SampleLot(site, project, username, password)
-  message1 <- paste0("Total number of sample lot list: ", length(sample_lot$NXC_SAMPLE_INDEX))
+  sample_lot <- GET_PROJ_SampleLot(site, project, username, password) |>
+    filter(is.na(NOTES) | !str_detect(NOTES, "ISR"))
+  sample_lot$sample_prefix <- sub("_.*", "", sample_lot$Name)
 
-  data <- left_join(sample_lot, expanded_data, by = "NXC_SAMPLE_INDEX")
+  data <- left_join(sample_lot, expanded_data, by = "sample_prefix")
 
   colnames(data)[colnames(data) == "Analyte_Result_Comment"] <- "Analysis Result Comment"
 
