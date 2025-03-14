@@ -21,7 +21,7 @@ CHECK_SAMP_ConDup <- function (data, dup_cols, std_cols, check_cols) {
     arrange(across(all_of(dup_cols))) |>
     select(all_of(dup_cols), everything())
 
-  if (length(dup_cols$`Subject ID`) == 0) {
+  if (length(dup$`Subject ID`) == 0) {
     message1 <- "There is no duplicate data for your selection"
   } else {
     message1 <- "The following are inconsistent data for your selected columns"
