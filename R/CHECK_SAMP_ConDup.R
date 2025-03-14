@@ -24,7 +24,7 @@ CHECK_SAMP_ConDup <- function (data, dup_cols, std_cols, check_cols) {
   if (length(dup$`Subject ID`) == 0) {
     message1 <- "There is no duplicated data for your selection"
   } else {
-    message1 <- paste0("The following are duplicated data for your selected columns: ", dup_cols)
+    message1 <- paste0("The following are duplicated data for your selected columns")
   }
 
   # Consistency
