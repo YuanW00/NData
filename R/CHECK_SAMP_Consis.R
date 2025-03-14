@@ -33,7 +33,8 @@ CHECK_SAMP_Consis <- function (data, std_cols, check_cols) {
   inconsistent_data <- data_with_flags |>
     select(-starts_with("n_unique_")) |>
     filter(Consistent_Flag == FALSE) |>
-    arrange(across(all_of(std_cols)))
+    arrange(across(all_of(std_cols))) |>
+    select(all_of(std_cols), everything())
 
   if (length(inconsistent_data$`Subject ID`) == 0) {
     message <- "There is no inconsistent data for your selection"
