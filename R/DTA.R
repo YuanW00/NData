@@ -7,6 +7,7 @@
 #' @import stringr
 #' @import tidyverse
 #' @param study_id The study id for current study, acquired from LIMS project
+#' @param format The expected format of DTA: "landscape" or "vertical", "landscape" by default
 #' @param version The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default
 #' @param site The PFS version need to work on: "Test" or "Production"
 #' @param project The Project Barcode to upload the analyte result
@@ -15,11 +16,11 @@
 #' @param column_choice The required columns needs to be exported in the report for cilent
 #' @return Return result data frame in the required data transfer formatting
 #' @examples
-#' DTA(study_id = "STD1234", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
+#' DTA(study_id = "STD1234", format = "vertical", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
 #' DTA(study_id = "STD1234", version = "plus", site = "Test", project = "NP123", username = "user", password = "1234");
 #' @export
 DTA <- function (
-    study_id, version = "basic",
+    study_id, format = "landscape", version = "basic",
     site, project, username, password,
     column_choice = c("Study ID", "Sponsor Sample ID",
                       "Subject ID", "Visit Name", "Sample Type",
@@ -112,6 +113,9 @@ DTA <- function (
       )
     )
 
+  analyte_num <- data_long |>
+    distinct(AnalyteGroup, `Test Name`)
+
   data_long$`Study ID` <- study_id
   data_long <- data_long[!is.na(data_long$VALUE), ]
 
@@ -159,7 +163,8 @@ DTA <- function (
                            by = c("NXC_MATRIX", "NXC_SPECIES", "Test Name"))
 
   final_DTA <- data_long_p |>
-    select(`NXC_SAMPLE_INDEX`, `Study ID`, NXC_SPONSOR_SAMPLE_ID, `SPONSOR_SAMPLE_BARCODE`,
+    select(`NXC_SAMPLE_INDEX`, `Study ID`, NXC_SPONSOR_SAMPLE_ID,
+           `SPONSOR_SAMPLE_BARCODE`,
            `NXC_SUBJECT`, `NXC_SEX`,
            `NXC_GROUP`, `NXC_TREATMENT`, `NXC_MATRIX`,
            `NXC_COLLECTION_DATE`, `DATE_RECEIVED`, `Sample Test Date`,
@@ -203,12 +208,43 @@ DTA <- function (
 
   message_result <- "Processing complete. Results are displayed below."
 
-  return(
-    list(
+  if (format == "landscape") {
+
+    data_numbered <- left_join(final_DTA, analyte_num, by = "Test Name")
+    col_convert <- c("Test Name", "Test Result", "Test Result Unit", "Lab Test LLOQ",
+                     "Lab Test ULOQ", "LLOQ/ULOQ Units")
+    land_DTA <- pivot_wider(data_numbered,
+                            names_from = "AnalyteGroup",
+                            values_from = intersect(col_convert, colnames(final_DTA)),
+                            names_glue = "{.value} {`AnalyteGroup`}",
+                            names_sort = TRUE)
+
+    col_convert_expanded <- as.vector(
+      sapply(1:15, function(x) paste(col_convert, x))
+    )
+    cols <- c("Nextcea Sample ID", "Study ID", "Sponsor Sample ID",
+              "Sponsor Sample Barcode", "Subject ID", "Gender", "Group",
+              "Visit Name", "Sample Type", "Sample Collection Date",
+              "Nextcea Received Date", "Sample Test Date", col_convert_expanded,
+              "Comments"
+    )
+
+    land_DTA <- land_DTA |>
+      select(all_of(intersect(cols, colnames(land_DTA))))
+
+    result <- list(
       message = message_result,
       lot_length = message1,
-      final_df = as.data.frame(final_DTA)
-      )
+      final_df = as.data.frame(land_DTA)
     )
+
+  } else if (format == "vertical") {
+    result <- list(message = message_result,
+                   lot_length = message1,
+                   final_df = as.data.frame(final_DTA)
+    )
+  }
+
+  return(result)
 
 }

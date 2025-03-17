@@ -6,6 +6,7 @@
 \usage{
 DTA(
   study_id,
+  format = "landscape",
   version = "basic",
   site,
   project,
@@ -18,6 +19,8 @@ DTA(
 }
 \arguments{
 \item{study_id}{The study id for current study, acquired from LIMS project}
+
+\item{format}{The expected format of DTA: "landscape" or "vertical", "landscape" by default}
 
 \item{version}{The expected version of DTA format: "basic", "plus", or "user-defined", "basic" by default}
 
@@ -38,6 +41,6 @@ Return result data frame in the required data transfer formatting
 Convert Sample Lot Result to DTA format
 }
 \examples{
-DTA(study_id = "STD1234", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
+DTA(study_id = "STD1234", format = "vertical", version = "basic", site = "Test", project = "NP123", username = "user", password = "1234")
 DTA(study_id = "STD1234", version = "plus", site = "Test", project = "NP123", username = "user", password = "1234");
 }
