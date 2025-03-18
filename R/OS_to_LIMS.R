@@ -42,7 +42,7 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`) | pre_os_sub$`Analyte Value` < pre_os_sub$LLOQ] <- 0
   pre_os_sub$`Analyte Value` <- round(pre_os_sub$`Analyte Value`, 2)
   pre_os_sub$AnalyteGroup <- paste0("Analyte ", pre_os_sub$`Analyte Number`)
-  pre_os_sub <- pre_os_sub |> select(-LLOQ)
+  pre_os_sub <- pre_os_sub |> select(-LLOQ, `Analyte Number`)
 
   col_convert <- c("Use Record", "Analyte Name", "Analyte Value", "Analyte Unit")
   os_sub <- pivot_wider(pre_os_sub,
