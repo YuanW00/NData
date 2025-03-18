@@ -15,26 +15,44 @@
 #' @export
 OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
-                  paste0("Analyte ", seq(1:15)),
-                  paste0("Analyte ", seq(1:15), " Value"),
-                  paste0("Analyte ", seq(1:15), " Unit")
-  )
+                  "Analyte Name", "Analyte Value", "Analyte Unit")
 
-  analyte_cols <- c(paste0("Analyte ", seq(1:15)),
-                    paste0("Analyte ", seq(1:15), " Value"),
-                    paste0("Analyte ", seq(1:15), " Unit")
-  )
-
-  # os <- READ_OS_File(OS_file)
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
       select(-EXPT_SAMPLE_BARCODE)
   }
 
-  os_sub <- os |>
+  os_std <- os |>
+    filter(`Sample Type` == "Standard") |>
+    filter(str_detect(`Sample Name`, "STD 1|STD1")) |>
+    select(`Analyte Name`, `Analyte Concentration`) |>
+    distinct() |>
+    rename(LLOQ = `Analyte Concentration`)
+
+  pre_os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
+    filter(!str_detect(`Sample Name`, "eQC")) |>
     select(intersect(col_select, colnames(os))) |>
-    filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
+    group_by(`Sample Name`) |>
+    mutate(AnalyteGroup = paste0("Analyte ", row_number()))
+
+  pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
+
+  pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`) | pre_os_sub$`Analyte Value` < pre_os_sub$LLOQ] <- 0
+  pre_os_sub <- pre_os_sub |> select(-LLOQ)
+
+  col_convert <- c("Use Record", "Analyte Name", "Analyte Value", "Analyte Unit")
+  os_sub <- pivot_wider(pre_os_sub,
+                        names_from = "AnalyteGroup",
+                        values_from = all_of(col_convert),
+                        names_glue = "{`AnalyteGroup`} {.value}",
+                        names_sort = TRUE)
+
+  colnames(os_sub) <- colnames(os_sub) %>%
+    str_replace_all("Use Record", "Update Lot") %>%
+    str_replace_all("Analyte Value", "Value") %>%
+    str_replace_all("Analyte Name", "")
+  colnames(os_sub) <- gsub("Analyte ([0-9]+) Update Lot", "Update Lot Analyte \\1", colnames(os_sub))
 
   lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password) |>
     select(-Active)
@@ -117,13 +135,6 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     # print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
   }
 
-  for (col in names(upload)[str_detect(names(upload), "Value")]) {
-    prefix <- str_extract(col, "Analyte \\d+")
-    analyte_col <- prefix
-    lot_col <- paste0(prefix, " Update Lot")
-    upload[[analyte_col]] <- ifelse(is.na(upload[[col]]), "", upload[[analyte_col]])
-  }
-  upload[is.na(upload)] <- ""
   upload <- upload |>
     select(-c(order.x, order.y))
 
@@ -132,5 +143,4 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     result_dataset = upload
   )
   return(result)
-
 }
