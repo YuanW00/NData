@@ -15,7 +15,7 @@
 #' @export
 OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
-                  "Analyte Name", "Analyte Value", "Analyte Unit")
+                  "Analyte Name", "Analyte Value", "Analyte Unit", "Analyte Number")
 
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
@@ -27,18 +27,21 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     filter(str_detect(`Sample Name`, "STD 1|STD1")) |>
     select(`Analyte Name`, `Analyte Concentration`) |>
     distinct() |>
+    filter(!is.na(`Analyte Name`)) |>
     rename(LLOQ = `Analyte Concentration`)
 
   pre_os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
     select(intersect(col_select, colnames(os))) |>
-    group_by(`Sample Name`) |>
-    mutate(AnalyteGroup = paste0("Analyte ", row_number()))
+    filter(!is.na(`Analyte Name`))
+  # filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
 
   pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
 
   pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`) | pre_os_sub$`Analyte Value` < pre_os_sub$LLOQ] <- 0
+  pre_os_sub$`Analyte Value` <- round(pre_os_sub$`Analyte Value`, 2)
+  pre_os_sub$AnalyteGroup <- paste0("Analyte ", pre_os_sub$`Analyte Number`)
   pre_os_sub <- pre_os_sub |> select(-LLOQ)
 
   col_convert <- c("Use Record", "Analyte Name", "Analyte Value", "Analyte Unit")
