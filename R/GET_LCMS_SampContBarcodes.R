@@ -11,9 +11,9 @@
 #' @param password The password to log in PFS
 #' @return Return one data frame including samples and containers information: barcode, name, and active status
 #' @examples
-#' GET_LCMS_SampContBarcodes("Test", "LCMS1", "user", "password");
+#' GET_LCMS_SampleContainer("Test", "LCMS1", "user", "password");
 #' @export
-GET_LCMS_SampContBarcodes <- function (site, ept_barcode, username, password) {
+GET_LCMS_SampleContainer <- function (site, ept_barcode, username, password) {
   rct <- paste0("LC_MSMS_EXPERIMENT('", ept_barcode, "')/EXPERIMENT_CONTAINERS?$expand=CONTAINER")
   sample <- paste0("LC_MSMS_EXPERIMENT('", ept_barcode, "')/EXPERIMENT_CONTAINERS?$expand=EXPERIMENT_SAMPLES($expand=ENTITY)")
   if (site == "Test") {

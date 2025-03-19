@@ -57,8 +57,8 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     str_replace_all("Analyte Name", "")
   colnames(os_sub) <- gsub("Analyte ([0-9]+) Update Lot", "Update Lot Analyte \\1", colnames(os_sub))
 
-  lims <- GET_LCMS_SampContBarcodes(site, ept_barcode, username, password) |>
-    select(EXPT_SAMPLE_BARCODE, SAMPLE_NAME_REF, RCT_CONT)
+  lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password) |>
+    select(EXPT_SAMPLE_BARCODE, SAMPLE_NAME_REF)
 
   lims$order <- gsub("\\D", "", sub("_.*", "", lims$SAMPLE_NAME_REF))
   os_sub$order <- sub("_.*", "", os_sub$`Sample Name`)
