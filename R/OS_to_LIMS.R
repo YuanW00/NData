@@ -50,10 +50,11 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
                         names_glue = "{`AnalyteGroup`} {.value}",
                         names_sort = TRUE)
 
-  colnames(os_sub) <- colnames(os_sub) %>%
-    str_replace_all("Use Record", "Update Lot") %>%
-    str_replace_all("Analyte Value", "Value") %>%
-    str_replace_all("Analyte Name", "")
+  colnames(os_sub) <- colnames(os_sub) |>
+    str_replace_all("Use Record", "Update Lot") |>
+    str_replace_all("Analyte Value", "Value") |>
+    str_replace_all("Analyte Unit", "Unit") |>
+    str_replace_all(" Analyte Name", "")
   # colnames(os_sub) <- gsub("Analyte ([0-9]+) Update Lot", "Update Lot Analyte \\1", colnames(os_sub))
 
   lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password) |>
