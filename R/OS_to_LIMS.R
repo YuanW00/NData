@@ -35,7 +35,6 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     filter(!str_detect(`Sample Name`, "eQC")) |>
     select(intersect(col_select, colnames(os))) |>
     filter(!is.na(`Analyte Name`))
-  # filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
 
   pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
 
@@ -55,7 +54,7 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     str_replace_all("Use Record", "Update Lot") %>%
     str_replace_all("Analyte Value", "Value") %>%
     str_replace_all("Analyte Name", "")
-  colnames(os_sub) <- gsub("Analyte ([0-9]+) Update Lot", "Update Lot Analyte \\1", colnames(os_sub))
+  # colnames(os_sub) <- gsub("Analyte ([0-9]+) Update Lot", "Update Lot Analyte \\1", colnames(os_sub))
 
   lims <- GET_LCMS_SampleBarcodes(site, ept_barcode, username, password) |>
     select(EXPT_SAMPLE_BARCODE, SAMPLE_NAME_REF)
