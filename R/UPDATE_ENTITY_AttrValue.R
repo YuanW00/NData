@@ -34,9 +34,9 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
   data <- fromJSON(content(response, "text"))
 
   if (!is.null(data$PUBLISHED_DATE)) {
-    pub_message <- "This is a published experiment. No uploading."
+    pub_message <- "This is a published experiment."
     message1 <- NULL
-    message2 <- NULL
+    message2 <- "No Updating"
   } else {
     pub_message <- "This is not a published experiment."
     # Update Values
