@@ -107,10 +107,10 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   lims_missing <- setdiff(expected_sequence, lims$Sequence)
 
   if (length(lims_missing) == 0) {
-    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Normal", Content = "The sample is sequential."))
+    alert_df <- rbind(alert_df, data.frame(Alert_Check = "Normal", Content = "The sample is sequential."))
     # print("The sample is sequential.")
   } else {
-    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 2", Content = paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", "))))
+    alert_df <- rbind(alert_df, data.frame(Alert_Check = "Alert 1", Content = paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", "))))
     # print(paste0("The samples are not sequential in the LIMS template and missing sample index are ", paste(lims_missing, collapse = ", ")))
   }
 
@@ -135,11 +135,11 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
 
   # Check if there is missing sample in the OS file
   if (any(str_detect(upload$Match_Name, "Not Match") & is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 3", Content = "Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file."))
+    alert_df <- rbind(alert_df, data.frame(Alert_Check = "Alert 2", Content = "Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file."))
     # print("Missing samples found in the LIMS template. Please check 'Not Match - sample' in the uploaded file.")
   }
   if (any(str_detect(upload$Match_Name, "Not Match") & !is.na(upload$EXPT_SAMPLE_BARCODE))) {
-    alert_df <- rbind(alert_df, data.frame(Alert_Check_Result = "Alert 4", Content = "Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file."))
+    alert_df <- rbind(alert_df, data.frame(Alert_Check = "Alert 3", Content = "Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file."))
     # print("Missing samples found in the OS result file. Please check 'Not Match - sample' in the uploaded file.")
   }
 
