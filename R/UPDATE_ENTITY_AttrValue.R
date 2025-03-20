@@ -35,34 +35,35 @@ UPDATE_ENTITY_AttrValue <- function(site, username, password, entity,
 
   if (!is.null(data$PUBLISHED_DATE)) {
     pub_message <- "This is a published experiment. No uploading."
+    message1 <- NULL
+    message2 <- NULL
   } else {
     pub_message <- "This is not a published experiment."
-  }
-
-  # Update Values
-  message1 <- NULL
-  for (i in 1:length(attributes)) {
-    col_name <- gsub("\\s+", "_", toupper(attributes[i]))
-    col_value <- values[i]
-    if (col_name %in% names(data)) {
-      data[[col_name]] <- ifelse(is.na(col_value), data[[col_name]], col_value)
-    } else {
-      message1 <- c(message1, attributes[i])
+    # Update Values
+    message1 <- NULL
+    for (i in 1:length(attributes)) {
+      col_name <- gsub("\\s+", "_", toupper(attributes[i]))
+      col_value <- values[i]
+      if (col_name %in% names(data)) {
+        data[[col_name]] <- ifelse(is.na(col_value), data[[col_name]], col_value)
+      } else {
+        message1 <- c(message1, attributes[i])
+      }
     }
-  }
 
-  # Upload new values
-  update_payload <- toJSON(data, auto_unbox = T, null = "null")
-  header <- c("Content-Type" = "application/json", "If-Match" = "*")
-  put_response <- PUT(url,
-                      body = update_payload,
-                      authenticate(username, password),
-                      add_headers(header))
+    # Upload new values
+    update_payload <- toJSON(data, auto_unbox = T, null = "null")
+    header <- c("Content-Type" = "application/json", "If-Match" = "*")
+    put_response <- PUT(url,
+                        body = update_payload,
+                        authenticate(username, password),
+                        add_headers(header))
 
-  if (put_response[["status_code"]] == 200) {
-    message2 = "Updating completed!"
-  } else {
-    message2 = "Updating failed!"
+    if (put_response[["status_code"]] == 200) {
+      message2 = "Updating completed!"
+    } else {
+      message2 = "Updating failed!"
+    }
   }
 
   # Get updated values from LIMS
