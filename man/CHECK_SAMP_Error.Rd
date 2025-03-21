@@ -4,9 +4,11 @@
 \alias{CHECK_SAMP_Error}
 \title{DTA Error Check}
 \usage{
-CHECK_SAMP_Error(data)
+CHECK_SAMP_Error(format, data)
 }
 \arguments{
+\item{format}{The format of DTA data}
+
 \item{data}{The data frame after data transfer}
 }
 \value{
