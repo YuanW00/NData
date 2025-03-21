@@ -24,6 +24,7 @@ Imports:
     openxlsx, 
     httr, 
     jsonlite,
-    purrr
+    purrr, 
+    rlang
 Depends: 
     R (>= 2.10)
