@@ -28,13 +28,15 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     select(`Analyte Name`, `Analyte Concentration`) |>
     distinct() |>
     filter(!is.na(`Analyte Name`)) |>
-    rename(LLOQ = `Analyte Concentration`)
+    rename(LLOQ = `Analyte Concentration`) |>
+    filter(LLOQ!=0)
 
   pre_os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
     select(intersect(col_select, colnames(os))) |>
     filter(!is.na(`Analyte Name`))
+  # filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
 
   pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
 
@@ -46,7 +48,8 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
       `Use Record` == 0 ~ FALSE,
       `Use Record` == 1 ~ TRUE
     )) |>
-    select(-LLOQ, -`Analyte Number`)
+    select(-LLOQ, -`Analyte Number`) |>
+    filter(AnalyteGroup != "Analyte NA")
 
   col_convert <- c("Use Record", "Analyte Name", "Analyte Value", "Analyte Unit")
   os_sub <- pivot_wider(pre_os_sub,
