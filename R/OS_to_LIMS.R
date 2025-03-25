@@ -17,6 +17,8 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
                   "Analyte Name", "Analyte Value", "Analyte Unit", "Analyte Number")
 
+  col_std <- c("Analyte Concentration", "Analyte Concentration (ng/mL)")
+
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
       select(-EXPT_SAMPLE_BARCODE)
@@ -25,18 +27,19 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   os_std <- os |>
     filter(`Sample Type` == "Standard") |>
     filter(str_detect(`Sample Name`, "STD 1|STD1")) |>
-    select(`Analyte Name`, `Analyte Concentration`) |>
+    select(`Analyte Name`, intersect(col_std, colnames(os))) |>
     distinct() |>
-    filter(!is.na(`Analyte Name`)) |>
-    rename(LLOQ = `Analyte Concentration`) |>
-    filter(LLOQ!=0)
+    filter(!is.na(`Analyte Name`))
+
+  colnames(os_std) <- c("Analyte Name", "LLOQ")
+  os_std <- os_std |>
+    filter(!LLOQ %in% c(0, 0.00, 0.000, "0", "0.00", "0.000"))
 
   pre_os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
     select(intersect(col_select, colnames(os))) |>
     filter(!is.na(`Analyte Name`))
-  # filter(rowSums(!is.na(across(all_of(intersect(analyte_cols, colnames(os)))))) > 0)
 
   pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
 
