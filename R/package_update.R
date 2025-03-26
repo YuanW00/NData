@@ -1,4 +1,4 @@
-# update project_page data
+# # update project_page data
 #
 # library(httr)
 # library(dplyr)
@@ -10,11 +10,12 @@
 # username <- "ywang"
 # password <- "0809Ann@"
 #
-# site <- "Test"
-# test <- SAVE_PROJ_LotPage(site, username, password)
+# # site <- "Test"
+# # test <- SAVE_PROJ_LotPage(site, username, password)
 #
 # site <- "Production"
 # prod <- SAVE_PROJ_LotPage(site, username, password)
 #
 # # usethis::use_data(test, prod, overwrite = TRUE, internal = TRUE)
-# usethis::use_data(test, prod, overwrite = TRUE)
+# # usethis::use_data(test, prod, overwrite = TRUE)
+# usethis::use_data(prod, overwrite = TRUE)
