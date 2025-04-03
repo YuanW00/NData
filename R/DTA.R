@@ -30,8 +30,8 @@ DTA <- function (
 
   info_table <- GET_PROJ_ExpInfo(site, project, username, password) |>
     filter(Active == TRUE) |>
-    select(`Sample Test Date`, NOTES) |>
-    filter(!is.na(NOTES))
+    select(`Sample Test Date`, sample_index_note) |>
+    filter(!is.na(sample_index_note))
   expand_ranges <- function(data) {
 
     data <- gsub("[^0-9a-zA-Z#,-]", "", data)
@@ -68,9 +68,9 @@ DTA <- function (
 
   expanded_data <- info_table |>
     rowwise() |>
-    mutate(sample_prefix = list(expand_ranges(NOTES))) |>
+    mutate(sample_prefix = list(expand_ranges(sample_index_note))) |>
     unnest(cols = c(sample_prefix)) |>
-    select(-NOTES) |>
+    select(-sample_index_note) |>
     select(sample_prefix, everything())
   expanded_data$sample_prefix <- as.character(expanded_data$sample_prefix)
 

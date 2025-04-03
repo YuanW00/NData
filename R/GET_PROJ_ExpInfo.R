@@ -37,7 +37,8 @@ GET_PROJ_ExpInfo <- function (site, project, username, password) {
   }
 
   info_table <- info_table |>
-    rename(`Sample Test Date` = DATE)
+    rename(`Sample Test Date` = DATE,
+           sample_index_note = NUMBERS_OF_SAMPLES_TO_BE_ANALYZED)
   colnames(info_table) <- gsub("^LLOQ_ANALYTE_(\\d+)$", "ANALYTE_\\1_LLOQ", colnames(info_table))
   colnames(info_table) <- gsub("^ULOQ_ANALYTE_(\\d+)$", "ANALYTE_\\1_ULOQ", colnames(info_table))
 
