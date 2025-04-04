@@ -92,7 +92,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
   eQC <- eQC |>
-    mutate(eQC_DF = mean(area_ratio)*slope_ratio)
+    mutate(eQC_DF = round(mean(area_ratio)*slope_ratio, 3))
 
   test <- data |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
@@ -103,7 +103,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
               Slope = slope_value,
               Slope_REF = unique(ref_table$Slope_REF)
     )
-  test$Test_Sample_DF <- test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF)
+  test$Test_Sample_DF <- round(test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF), 3)
 
   result <- list(message = message1,
                  eQC_DF = eQC,
