@@ -92,7 +92,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
   eQC$eQC_DF <- round(mean(eQC$area_ratio)*eQC$slope_ratio, 3)
-  eQC$New_Concentration <- round(eQC$eQC_DF*as.numeric(eQC$`Calculated Concentration (ng/mL)`), 3)
+  eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$`Calculated Concentration (ng/mL)`), 3)
 
   test <- data |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
