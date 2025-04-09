@@ -31,43 +31,53 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     print("Wrong Site!")
   }
 
+  url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/EQC_REFERENCE?%24filter=ASSAY%20eq%20%27KIM-1_LLGNLSR%20%28Hydro.%20P%20-%2019.3%29%20A%27"
   ref_table <- NULL
-  while (TRUE) {
-    response <- GET(ref_url, authenticate(username, password))
-    data <- fromJSON(content(response, "text"))
-    df <- data$value |>
-      filter(Active == TRUE) |>
-      filter(NXC_MATRIX == matrix) |>
-      filter(NXC_SPECIES == species) |>
-      select(SPECIES, NXC_SPECIES, NXC_MATRIX, ASSAY, ANALYTE_12_VALUE, ANALYTE_13_VALUE) |>
-      rename(
-        Type = SPECIES,
-        Species = NXC_SPECIES,
-        Matrix = NXC_MATRIX,
-        Analyte = ASSAY,
-        Area_Ratio_REF = ANALYTE_12_VALUE,
-        Slope_REF = ANALYTE_13_VALUE
-      ) |>
-      distinct()
-    ref_table <- as.data.frame(rbind(ref_table, df))
-    if (!is.null(data[["@odata.nextLink"]]) ) {
-      url <- data[["@odata.nextLink"]]
-    } else {
-      break
+  for (i in ref_url) {
+    i <- modify_url(i)
+    while (TRUE) {
+      response <- GET(i, authenticate(username, password))
+      data <- fromJSON(content(response, "text"))
+      df <- data$value |>
+        filter(Active == TRUE) |>
+        filter(NXC_MATRIX == matrix) |>
+        filter(NXC_SPECIES == species) |>
+        select(SPECIES, NXC_SPECIES, NXC_MATRIX, ASSAY, ANALYTE_12_VALUE, ANALYTE_13_VALUE) |>
+        rename(
+          Type = SPECIES,
+          Species = NXC_SPECIES,
+          Matrix = NXC_MATRIX,
+          Analyte = ASSAY,
+          Area_Ratio_REF = ANALYTE_12_VALUE,
+          Slope_REF = ANALYTE_13_VALUE
+        ) |>
+        distinct()
+      ref_table <- as.data.frame(rbind(ref_table, df))
+      if (!is.null(data[["@odata.nextLink"]]) ) {
+        i <- data[["@odata.nextLink"]]
+      } else {
+        break
+      }
     }
   }
 
   lines <- readLines(OS_file)
   target_slope <- paste0("Peak Name: ", analyte)
-  start_index <- grep(paste0("^", target_slope, "$"), lines)
-  if (length(start_index) > 0) {
-    slope_line <- grep("^Slope", lines[start_index:length(lines)], value = TRUE)[1]
-    slope_value <- as.numeric(sub(".*Slope\\s+", "", slope_line))
-    # transition_line <- grep("^Extraction: ", lines[start_index:length(lines)], value = TRUE)[1]
-    # transition_value <- sub(".*:\\s*", "", transition_line)
-    message1 <- paste0("Slope Extracted as ", slope_value)
-  } else {
-    message1 <- "Target peak name not found in the file."
+  slope_df <- NULL
+  for (target in target_slope) {
+    start_index <- which(lines == target)
+    if (length(start_index) > 0) {
+      slope_line <- grep("^Slope", lines[start_index:length(lines)], value = TRUE)[1]
+      slope_value <- as.numeric(sub(".*Slope\\s+", "", slope_line))
+      # transition_line <- grep("^Extraction: ", lines[start_index:length(lines)], value = TRUE)[1]
+      # transition_value <- sub(".*:\\s*", "", transition_line)
+      df <- data.frame(Analyte = target,
+                       Slope = slope_value)
+      slope_df <- rbind(slope_df, df)
+      message1 <- paste0("Slope Extracted as ", slope_value)
+    } else {
+      message1 <- "Target peak name not found in the file."
+    }
   }
 
   os <- READ_OS_File(OS_file)
@@ -75,7 +85,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
                 "Dilution Factor", "Calculated Concentration", "Calculated Concentration (ng/mL)")
   data <- os |>
     filter(`Sample Type`=="Unknown") |>
-    filter(`Analyte Peak Name` == analyte) |>
+    filter(`Analyte Peak Name` %in% analyte) |>
     select(intersect(col_need, colnames(os))) |>
     rename(Analyte = `Analyte Peak Name`)
 
@@ -83,7 +93,6 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     filter(str_detect(`Sample Name`, "eQC")) |>
     group_by(`Sample Name`) |>
     mutate(Type = str_extract(`Sample Name`, "^eQC\\d+"),
-           Analyte = unique(Analyte),
            Matrix = matrix,
            AVE_PAR = mean(as.numeric(`Area Ratio`)),
            Slope = slope_value)
