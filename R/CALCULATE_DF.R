@@ -96,16 +96,19 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
 
   eQC <- data |>
     filter(str_detect(`Sample Name`, "eQC")) |>
-    group_by(`Sample Name`) |>
+    group_by(`Sample Name`, Analyte) |>
     mutate(Type = str_extract(`Sample Name`, "^eQC\\d+"),
            Matrix = matrix,
-           AVE_PAR = mean(as.numeric(`Area Ratio`)),
-           Slope = slope_value)
+           AVE_PAR = mean(as.numeric(`Area Ratio`)))
 
+  eQC <- left_join(eQC, slope_df, by = "Analyte")
   eQC <- left_join(eQC, ref_table, by = c("Analyte", "Type", "Matrix"))
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
-  eQC$eQC_DF <- round(mean(eQC$area_ratio)*eQC$slope_ratio, 3)
+  eQC <- eQC |>
+    group_by(Analyte) |>
+    mutate(eQC_DF = round(mean(area_ratio)*mean(slope_ratio), 3))
+
   eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$Original_eQC_Value), 3)
   eQC <- eQC |>
     arrange(Analyte)
