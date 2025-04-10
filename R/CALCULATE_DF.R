@@ -64,6 +64,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
 
   lines <- readLines(OS_file)
   slope_df <- NULL
+  message1 <- NULL
   for (i in analyte) {
     target <- paste0("Peak Name: ", i)
     start_index <- which(lines == target)
@@ -75,9 +76,9 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
       df <- data.frame(Analyte = i,
                        Slope = slope_value)
       slope_df <- rbind(slope_df, df)
-      message1 <- paste0("Slope Extracted as ", slope_value)
+      message1 <- c(message1, paste0(i, ": slope found; "))
     } else {
-      message1 <- "Target peak name not found in the file."
+      message1 <- c(message1,  paste0(i, ": slope not found; "))
     }
   }
 
