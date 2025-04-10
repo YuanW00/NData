@@ -63,16 +63,16 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   }
 
   lines <- readLines(OS_file)
-  target_slope <- paste0("Peak Name: ", analyte)
   slope_df <- NULL
-  for (target in target_slope) {
+  for (i in analyte) {
+    target <- paste0("Peak Name: ", i)
     start_index <- which(lines == target)
     if (length(start_index) > 0) {
       slope_line <- grep("^Slope", lines[start_index:length(lines)], value = TRUE)[1]
       slope_value <- as.numeric(sub(".*Slope\\s+", "", slope_line))
       # transition_line <- grep("^Extraction: ", lines[start_index:length(lines)], value = TRUE)[1]
       # transition_value <- sub(".*:\\s*", "", transition_line)
-      df <- data.frame(Analyte = target,
+      df <- data.frame(Analyte = i,
                        Slope = slope_value)
       slope_df <- rbind(slope_df, df)
       message1 <- paste0("Slope Extracted as ", slope_value)
@@ -106,17 +106,24 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
   eQC$eQC_DF <- round(mean(eQC$area_ratio)*eQC$slope_ratio, 3)
   eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$Original_eQC_Value), 3)
+  eQC <- eQC |>
+    arrange(Analyte)
 
   test <- data |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
     rename(Actual_Sample_DF = `Dilution Factor`) |>
-    group_by(Actual_Sample_DF)|>
-    summarise(Analyte = analyte,
-              Matrix = matrix,
-              Slope = slope_value,
-              Slope_REF = unique(ref_table$Slope_REF)
+    group_by(Actual_Sample_DF, Analyte)|>
+    summarise(Matrix = matrix,
+              # Slope = slope_value
+              #Slope_REF = unique(ref_table$Slope_REF)
     )
+  test <- left_join(test, slope_df, by = "Analyte")
+  test <- left_join(test, ref_table, by = c("Analyte", "Matrix")) |>
+    select(Actual_Sample_DF, Analyte, Species, Matrix, Slope, Slope_REF)
   test$Test_Sample_DF <- round(test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF), 3)
+
+  test <- test |>
+    arrange(Analyte)
 
   result <- list(message = message1,
                  eQC_DF = eQC,
