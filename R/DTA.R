@@ -234,16 +234,19 @@ DTA <- function (
 
     rename_test_cols <- function(df) {
       df_new <- df
+      # df_new <- land_DTA
       test_name_cols <- grep("^Test Name \\d+$", names(df_new), value = TRUE)
 
       for (test_col in test_name_cols) {
+        # test_col <- test_name_cols[1]
         test_num <- gsub("Test Name ", "", test_col)
 
         analyte_name <- unique(df_new[[test_col]])
         analyte_name <- analyte_name[!is.na(analyte_name)][1]
 
         if (!is.na(analyte_name) && nzchar(analyte_name)) {
-          df_new <- df_new[, !(names(df_new) %in% test_name_cols)]
+          df_new <- df_new[, names(df_new) != test_col]
+
           names(df_new) <- gsub(
             paste0("^(Test|Lab Test) (.*?) ", test_num, "$"),
             paste0(analyte_name, " \\2"),
