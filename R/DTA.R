@@ -232,6 +232,36 @@ DTA <- function (
     land_DTA <- land_DTA |>
       select(all_of(intersect(cols, colnames(land_DTA))))
 
+    rename_test_cols <- function(df) {
+      df_new <- df
+      test_name_cols <- grep("^Test Name \\d+$", names(df_new), value = TRUE)
+
+      for (test_col in test_name_cols) {
+        test_num <- gsub("Test Name ", "", test_col)
+
+        analyte_name <- unique(df_new[[test_col]])
+        analyte_name <- analyte_name[!is.na(analyte_name)][1]
+
+        if (!is.na(analyte_name) && nzchar(analyte_name)) {
+          df_new <- df_new[, !(names(df_new) %in% test_name_cols)]
+          names(df_new) <- gsub(
+            paste0("^(Test|Lab Test) (.*?) ", test_num, "$"),
+            paste0(analyte_name, " \\2"),
+            names(df_new)
+          )
+
+          names(df_new) <- gsub(
+            paste0("^LLOQ/ULOQ Units ", test_num, "$"),
+            paste0(analyte_name, " LLOQ/ULOQ Units"),
+            names(df_new)
+          )
+        }
+      }
+      return(df_new)
+    }
+
+    land_DTA <- rename_test_cols(land_DTA)
+
     result <- list(
       message = message_result,
       lot_length = message1,
