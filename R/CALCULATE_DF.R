@@ -31,9 +31,10 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     print("Wrong Site!")
   }
 
-  url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/EQC_REFERENCE?%24filter=ASSAY%20eq%20%27KIM-1_LLGNLSR%20%28Hydro.%20P%20-%2019.3%29%20A%27"
+  # url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/EQC_REFERENCE?%24filter=ASSAY%20eq%20%27KIM-1_LLGNLSR%20%28Hydro.%20P%20-%2019.3%29%20A%27"
   ref_table <- NULL
   for (i in ref_url) {
+    # i = ref_url[1]
     i <- modify_url(i)
     while (TRUE) {
       response <- GET(i, authenticate(username, password))
@@ -89,6 +90,9 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     select(intersect(col_need, colnames(os))) |>
     rename(Analyte = `Analyte Peak Name`)
 
+  calc_col <- grep("Calculated Concentration", names(data), value = TRUE)
+  names(data)[names(data) == calc_col] <- "Original_eQC_Value"
+
   eQC <- data |>
     filter(str_detect(`Sample Name`, "eQC")) |>
     group_by(`Sample Name`) |>
@@ -101,7 +105,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
   eQC$eQC_DF <- round(mean(eQC$area_ratio)*eQC$slope_ratio, 3)
-  eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$`Calculated Concentration (ng/mL)`), 3)
+  eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$Original_eQC_Value), 3)
 
   test <- data |>
     filter(!str_detect(`Sample Name`, "eQC")) |>
