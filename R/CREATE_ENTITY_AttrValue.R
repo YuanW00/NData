@@ -34,7 +34,7 @@ CREATE_ENETITY_AttrValue <- function(site, username, password, entity, body) {
                         add_headers(header))
 
   if (!http_error(post_response)) {
-    message = "Event Log Record Created!"
+    message = "Record Created!"
   } else {
     message = http_status(post_response)$message
   }
