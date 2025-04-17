@@ -31,7 +31,6 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     print("Wrong Site!")
   }
 
-  # url <- "https://na1test.platformforscience.com/Nextcea_Test_28Mar2024/odata/EQC_REFERENCE?%24filter=ASSAY%20eq%20%27KIM-1_LLGNLSR%20%28Hydro.%20P%20-%2019.3%29%20A%27"
   ref_table <- NULL
   for (i in ref_url) {
     # i = ref_url[1]
