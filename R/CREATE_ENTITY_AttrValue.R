@@ -35,8 +35,8 @@ CREATE_ENETITY_AttrValue <- function(site, username, password, entity, body) {
 
 
   if (!http_error(post_response)) {
-    message = paste0(entity_id, " - Record Created!")
     entity_id <- content(post_response, as = "parsed")$Barcode
+    message = paste0(entity_id, " - Record Created!")
 
     get_url <- paste0(url, "?$filter=Barcode%20eq%20'", entity_id, "'")
     new_response <- GET(get_url, authenticate(username, password))
