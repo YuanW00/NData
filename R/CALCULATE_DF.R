@@ -43,9 +43,9 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
         filter(Active == TRUE) |>
         filter(NXC_MATRIX == matrix) |>
         filter(NXC_SPECIES == species) |>
-        select(SPECIES, NXC_SPECIES, NXC_MATRIX, ASSAY, ANALYTE_12_VALUE, ANALYTE_13_VALUE) |>
+        select(EQC_LEVEL, NXC_SPECIES, NXC_MATRIX, ASSAY, ANALYTE_12_VALUE, ANALYTE_13_VALUE) |>
         rename(
-          Type = SPECIES,
+          Type = EQC_LEVEL,
           Species = NXC_SPECIES,
           Matrix = NXC_MATRIX,
           Analyte = ASSAY,
