@@ -121,7 +121,10 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
               #Slope_REF = unique(ref_table$Slope_REF)
     )
   test <- left_join(test, slope_df, by = "Analyte")
-  test <- left_join(test, ref_table, by = c("Analyte", "Matrix")) |>
+  ref_table_test <- ref_table |>
+    select(-Type, -Area_Ratio_REF) |>
+    distinct()
+  test <- left_join(test, ref_table_test, by = c("Analyte", "Matrix")) |>
     select(Actual_Sample_DF, Analyte, Species, Matrix, Slope, Slope_REF)
   test$Test_Sample_DF <- round(test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF), 3)
 
