@@ -32,17 +32,20 @@ CREATE_ENETITY_AttrValue <- function(site, username, password, entity, body) {
                         body = create_payload,
                         authenticate(username, password),
                         add_headers(header))
-  entity_id <- content(post_response, as = "parsed")$Barcode
+
 
   if (!http_error(post_response)) {
     message = paste0(entity_id, " - Record Created!")
+    entity_id <- content(post_response, as = "parsed")$Barcode
+
+    get_url <- paste0(url, "?$filter=Barcode%20eq%20'", entity_id, "'")
+    new_response <- GET(get_url, authenticate(username, password))
+    new_data <- fromJSON(content(new_response, "text"))$value
+
   } else {
     message = http_status(post_response)$message
+    new_data <- NULL
   }
-
-  get_url <- paste0(t_url, entity, "?$filter=Barcode%20eq%20'", entity_id, "'")
-  new_response <- GET(get_url, authenticate(username, password))
-  new_data <- fromJSON(content(new_response, "text"))$value
 
   result <- list(
     message = message,
