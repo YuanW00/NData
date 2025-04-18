@@ -82,12 +82,13 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   }
 
   os <- READ_OS_File(OS_file)
-  col_need <- c("Sample Name", "Sample Type", "Analyte Peak Name", "Area Ratio",
+  col_need <- c("Use Record", "Sample Name", "Sample Type", "Analyte Peak Name", "Area Ratio",
                 "Dilution Factor", "Calculated Concentration", "Calculated Concentration (ng/mL)")
   data <- os |>
     filter(`Sample Type`=="Unknown") |>
     filter(`Analyte Peak Name` %in% analyte) |>
     select(intersect(col_need, colnames(os))) |>
+    filter(`Use Record` == 1) |>
     rename(Analyte = `Analyte Peak Name`)
 
   calc_col <- grep("Calculated Concentration", names(data), value = TRUE)
