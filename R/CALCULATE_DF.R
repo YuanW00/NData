@@ -109,7 +109,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     group_by(Analyte) |>
     mutate(eQC_Factor = round(mean(area_ratio)*mean(slope_ratio), 3))
 
-  eQC$Updated_eQC_Value <- round(eQC$eQC_DF*as.numeric(eQC$Original_eQC_Value), 3)
+  eQC$Updated_eQC_Value <- round(eQC$eQC_Factor*as.numeric(eQC$Original_eQC_Value), 3)
   eQC <- eQC |>
     arrange(Analyte)
 
