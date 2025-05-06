@@ -17,23 +17,22 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
   col_select <- c("Sample Name", "Sample Type", "Use Record",
                   "Analyte Name", "Analyte Value", "Analyte Unit", "Analyte Number")
 
-  col_std <- c("Analyte Concentration", "Analyte Concentration (ng/mL)")
+  # col_std <- c("Analyte Concentration", "Analyte Concentration (ng/mL)")
 
   if ("EXPT_SAMPLE_BARCODE" %in% colnames(os)) {
     os <- os |>
       select(-EXPT_SAMPLE_BARCODE)
   }
 
-  os_std <- os |>
-    filter(`Sample Type` == "Standard") |>
-    filter(str_detect(`Sample Name`, "STD 1|STD1")) |>
-    select(`Analyte Name`, intersect(col_std, colnames(os))) |>
-    distinct() |>
-    filter(!is.na(`Analyte Name`))
-
-  colnames(os_std) <- c("Analyte Name", "LLOQ")
-  os_std <- os_std |>
-    filter(!LLOQ %in% c(0, 0.00, 0.000, "0", "0.00", "0.000"))
+  # os_std <- os |>
+  #   filter(`Sample Type` == "Standard") |>
+  #   filter(str_detect(`Sample Name`, "STD 1|STD1")) |>
+  #   select(`Analyte Name`, intersect(col_std, colnames(os))) |>
+  #   distinct() |>
+  #   filter(!is.na(`Analyte Name`))
+  # colnames(os_std) <- c("Analyte Name", "LLOQ")
+  # os_std <- os_std |>
+  #   filter(!LLOQ %in% c(0, 0.00, 0.000, "0", "0.00", "0.000"))
 
   pre_os_sub <- os |>
     filter(`Sample Type` == "Unknown") |>
@@ -41,9 +40,10 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
     select(intersect(col_select, colnames(os))) |>
     filter(!is.na(`Analyte Name`))
 
-  pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
+  # pre_os_sub <- left_join(pre_os_sub, os_std, by = "Analyte Name")
 
-  pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`) | pre_os_sub$`Analyte Value` < pre_os_sub$LLOQ] <- 0
+  # pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`) | pre_os_sub$`Analyte Value` < pre_os_sub$LLOQ] <- 0
+  pre_os_sub$`Analyte Value`[is.na(pre_os_sub$`Analyte Value`)] <- 0
   pre_os_sub$`Analyte Value` <- round(pre_os_sub$`Analyte Value`, 2)
   pre_os_sub$AnalyteGroup <- paste0("Analyte ", pre_os_sub$`Analyte Number`)
   pre_os_sub <- pre_os_sub |>
@@ -51,7 +51,8 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
       `Use Record` == 0 ~ FALSE,
       `Use Record` == 1 ~ TRUE
     )) |>
-    select(-LLOQ, -`Analyte Number`) |>
+    # select(-LLOQ, -`Analyte Number`) |>
+    select(-`Analyte Number`) |>
     filter(AnalyteGroup != "Analyte NA")
 
   col_convert <- c("Use Record", "Analyte Name", "Analyte Value", "Analyte Unit")
