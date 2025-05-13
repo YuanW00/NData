@@ -11,7 +11,7 @@ SCIEX_Calculation_Check <- function(
     standard_file,
     test_file) {
   standard <- read.table(standard_file, sep = "\t")
-  standard <- standard[, 1:2]
+  standard <- standard[, 1]
   test <- read.table(test_file, sep = "\t")
   if (identical(standard, test)) {
     result <- list(
