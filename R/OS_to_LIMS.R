@@ -127,7 +127,7 @@ OS_to_LIMS <- function(os, site, ept_barcode, username, password) {
       missing_data <- data.frame(
         Match_Name = paste0("Not Match-", missing),
         SAMPLE_NAME_REF = rep(NA, 1),
-        SAMPLE_TYPE_REF = rep(NA, 1),
+        # SAMPLE_TYPE_REF = rep(NA, 1),
         EXPT_SAMPLE_BARCODE = rep(NA, 1),
         Sequence = rep(NA, 1),
         order = missing
