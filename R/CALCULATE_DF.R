@@ -107,7 +107,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
   eQC <- eQC |>
     group_by(Analyte) |>
-    mutate(eQC_Factor = mean(area_ratio)*mean(slope_ratio))
+    mutate(eQC_Factor = round(mean(area_ratio)*mean(slope_ratio), 2))
 
   eQC$Updated_eQC_Value <- round(eQC$eQC_Factor*as.numeric(eQC$Original_eQC_Value), 2)
   eQC <- eQC |>
@@ -122,9 +122,18 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
               #Slope_REF = unique(ref_table$Slope_REF)
     )
   test <- left_join(test, slope_df, by = "Analyte")
-  ref_table_test <- ref_table |>
-    select(-Type, -Area_Ratio_REF) |>
-    distinct()
+
+  if (analyte %in% c("PGAM", "PGEM")) {
+    ref_table_test <- ref_table |>
+      filter(Type == "eQC0") |>
+      select(-Type, -Area_Ratio_REF) |>
+      distinct()
+  } else {
+    ref_table_test <- ref_table |>
+      select(-Type, -Area_Ratio_REF) |>
+      distinct()
+  }
+
   test <- left_join(test, ref_table_test, by = c("Analyte", "Matrix")) |>
     select(Actual_Sample_DF, Analyte, Species, Matrix, Slope, Slope_REF)
   test$Test_Sample_Factor <- test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF)
