@@ -105,9 +105,19 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC <- left_join(eQC, ref_table, by = c("Analyte", "Type", "Matrix"))
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
-  eQC <- eQC |>
-    group_by(Analyte) |>
-    mutate(eQC_Factor = round(mean(area_ratio)*mean(slope_ratio), 2))
+
+  if (any(c("PGA-M", "PGE-M") %in% analyte)) {
+    eQC <- eQC |>
+      group_by(Analyte) |>
+      mutate(eQC_Factor = case_when(
+        Analyte %in% c("PGA-M", "PGE-M") ~ round(area_ratio * slope_ratio, 2),
+        TRUE ~  round(mean(area_ratio) * mean(slope_ratio), 2)
+      ))
+  } else {
+    eQC <- eQC |>
+      group_by(Analyte) |>
+      mutate(eQC_Factor = round(mean(area_ratio) * mean(slope_ratio), 2))
+  }
 
   eQC$Updated_eQC_Value <- round(eQC$eQC_Factor*as.numeric(eQC$Original_eQC_Value), 2)
   eQC <- eQC |>
@@ -123,7 +133,7 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     )
   test <- left_join(test, slope_df, by = "Analyte")
 
-  if (analyte %in% c("PGAM", "PGEM")) {
+  if (any(c("PGA-M", "PGE-M") %in% analyte)) {
     ref_table_test <- ref_table |>
       filter(Type == "eQC0") |>
       select(-Type, -Area_Ratio_REF) |>
