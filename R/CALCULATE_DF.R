@@ -136,13 +136,13 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   if (any(c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") %in% analyte)) {
     ref_table_test <- ref_table |>
       mutate(
-        Slope = case_when(
+        Slope_REF = case_when(
           Analyte %in% c("PGA-M", "PGE-M") & Type == "eQC1" ~ NA,
           Analyte == "Bicyclo PGE2 (B)" & Type == "eQC0" ~ NA,
-          TRUE ~  Slope
+          TRUE ~  Slope_REF
         )
       ) |>
-      filter(!is.na(Slope)) |>
+      filter(!is.na(Slope_REF)) |>
       select(-Type, -Area_Ratio_REF) |>
       distinct()
   } else {
