@@ -106,11 +106,11 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
 
-  if (any(c("PGA-M", "PGE-M") %in% analyte)) {
+  if (any(c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") %in% analyte)) {
     eQC <- eQC |>
       group_by(Analyte) |>
       mutate(eQC_Factor = case_when(
-        Analyte %in% c("PGA-M", "PGE-M") ~ round(area_ratio * slope_ratio, 2),
+        Analyte %in% c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") ~ round(area_ratio * slope_ratio, 2),
         TRUE ~  round(mean(area_ratio) * mean(slope_ratio), 2)
       ))
   } else {
@@ -133,9 +133,16 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
     )
   test <- left_join(test, slope_df, by = "Analyte")
 
-  if (any(c("PGA-M", "PGE-M") %in% analyte)) {
+  if (any(c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") %in% analyte)) {
     ref_table_test <- ref_table |>
-      filter(Type == "eQC0") |>
+      mutate(
+        Slope = case_when(
+          Analyte %in% c("PGA-M", "PGE-M") & Type == "eQC1" ~ NA,
+          Analyte == "Bicyclo PGE2 (B)" & Type == "eQC0" ~ NA,
+          TRUE ~  Slope
+        )
+      ) |>
+      filter(!is.na(Slope)) |>
       select(-Type, -Area_Ratio_REF) |>
       distinct()
   } else {
