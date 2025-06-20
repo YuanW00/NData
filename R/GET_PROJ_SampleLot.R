@@ -16,7 +16,7 @@
 #' @export
 GET_PROJ_SampleLot <- function (site, project, username, password) {
 
-  lot_info <- paste0("NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$filter=PROJECT/any(a:contains(a/Name,'", project, "'))")
+  lot_info <- paste0("NEXTCEA_SAMPLE_LOT?$expand=PROJECT&$filter=PROJECT/any(a:contains(a/Barcode,'", project, "'))")
   if (site == "Test") {
     data("t_url", package = "NData", envir = environment())
     lot_url <- paste0(t_url, lot_info)
