@@ -34,10 +34,18 @@ GET_PROJ_SampleLot <- function (site, project, username, password) {
     df <- data$value |>
       unnest(where(is.list), names_sep = "_") |>
       filter(Active == TRUE) |>
-      select(-c(EntityTypeName, Id, Sequence, Created, Modified, Active, LikedBy, FollowedBy,
-                Locked, CI_LOT_NUM, PROJECT_EntityTypeName, PROJECT_Id, PROJECT_Sequence,
-                PROJECT_Created, PROJECT_Modified, PROJECT_Active, PROJECT_LikedBy,
-                PROJECT_FollowedBy, PROJECT_Locked))
+      select(-any_of(c("EntityTypeName", "Id", "Sequence", "Created",
+                       "Modified", "Active", "LikedBy", "FollowedBy",
+                       "Locked", "CI_LOT_NUM", "COLUMN_STATUS",
+                       "CATALOG_NUMBER", "COMPANY_NAME",
+                       "SUPPLEMENTAL_DOC_1_ANNOTATIONS",
+                       "SUPPLEMENTAL_DOC_2_ANNOTATIONS", "COMMENTS",
+                       "PROJECT_EntityTypeName", "PROJECT_Id",
+                       "PROJECT_Sequence", "PROJECT_Created",
+                       "PROJECT_Modified", "PROJECT_Active", "PROJECT_LikedBy",
+                       "PROJECT_FollowedBy", "PROJECT_Locked",
+                       "SUPPLEMENTAL_DOC_1@odata.mediaContentType",
+                       "SUPPLEMENTAL_DOC_2@odata.mediaContentType")))
     sample_lot <- as.data.frame(rbind(sample_lot, df))
     if (!is.null(data[["@odata.nextLink"]]) ) {
       lot_url <- data[["@odata.nextLink"]]
