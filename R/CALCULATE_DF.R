@@ -106,11 +106,15 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC$area_ratio <- eQC$Area_Ratio_REF/eQC$AVE_PAR
   eQC$slope_ratio <- eQC$Slope/eQC$Slope_REF
 
-  if (any(c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") %in% analyte)) {
+  separate_analyte <- c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)",
+                        "PPIX (high sensititivity_70 CE)",
+                        "Gal/GlcSph-18:1")
+
+  if (any(analyte %in% separate_analyte)) {
     eQC <- eQC |>
       group_by(Analyte) |>
       mutate(eQC_Factor = case_when(
-        Analyte %in% c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)") ~ round(area_ratio * slope_ratio, 2),
+        Analyte %in% separate_analyte ~ round(area_ratio * slope_ratio, 2),
         TRUE ~  round(mean(area_ratio) * mean(slope_ratio), 2)
       ))
   } else {
@@ -146,14 +150,15 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
       select(-Type, -Area_Ratio_REF) |>
       distinct()
   } else {
-    ref_table_test <- ref_table |>
-      select(-Type, -Area_Ratio_REF) |>
+    ref_table_test <- eQC |>
+      select(Species, Matrix, Analyte, Slope_REF) |>
       distinct()
   }
 
   test <- left_join(test, ref_table_test, by = c("Analyte", "Matrix")) |>
     select(Actual_Sample_DF, Analyte, Species, Matrix, Slope, Slope_REF)
-  test$Test_Sample_Factor <- test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF)
+  test$Slope_Ratio <- round(test$Slope/test$Slope_REF, 2)
+  test$Test_Sample_Factor <- round(test$Slope/test$Slope_REF*as.numeric(test$Actual_Sample_DF), 2)
 
   test <- test |>
     arrange(Analyte)
