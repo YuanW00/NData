@@ -108,7 +108,11 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
 
   separate_analyte <- c("PGA-M", "PGE-M", "Bicyclo PGE2 (B)",
                         "PPIX (high sensititivity_70 CE)",
-                        "Gal/GlcSph-18:1")
+                        "Gal/GlcSph-18:1",
+                        "Gal/GlcCer-16:0 (GLP)",
+                        "Gal/GlcCer-18:0 (GLP)",
+                        "Gal/GlcCer-22:0 (GLP)",
+                        "Gal/GlcCer-24:1 (GLP)")
 
   if (any(analyte %in% separate_analyte)) {
     eQC <- eQC |>
