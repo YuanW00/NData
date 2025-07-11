@@ -97,9 +97,9 @@ CALCULATE_DF <- function (site, username, password, analyte, species, matrix, OS
   eQC <- data |>
     filter(str_detect(`Sample Name`, "eQC")) |>
     group_by(`Sample Name`, Analyte) |>
-    mutate(Type = str_extract(`Sample Name`, "^eQC\\d+"),
+    mutate(Type = str_extract(`Sample Name`, "^eQC[^_]+"),
            Matrix = matrix,
-           AVE_PAR = mean(as.numeric(`Area Ratio`)))
+           AVE_PAR = mean(as.numeric(`Area Ratio`), na.rm = TRUE))
 
   eQC <- left_join(eQC, slope_df, by = "Analyte")
   eQC <- left_join(eQC, ref_table, by = c("Analyte", "Type", "Matrix"))
