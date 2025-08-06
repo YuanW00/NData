@@ -227,7 +227,8 @@ DTA <- function (
     cols <- c("Nextcea Sample ID", "Study ID", "Sponsor Sample ID",
               "Sponsor Sample Barcode", "Subject ID", "Gender", "Group",
               "Visit Name", "Sample Type", "Sample Collection Date",
-              "Nextcea Received Date", "Sample Test Date", col_convert_expanded,
+              "Sample Collection Time Interval", 
+              "Nextcea Received Date", "Sample Test Date", col_convert_expanded, 
               "Comments"
     )
 
