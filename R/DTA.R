@@ -167,7 +167,8 @@ DTA <- function (
            `SPONSOR_SAMPLE_BARCODE`,
            `NXC_SUBJECT`, `NXC_SEX`,
            `NXC_GROUP`, `NXC_TREATMENT`, `NXC_MATRIX`,
-           `NXC_COLLECTION_DATE`, `DATE_RECEIVED`, `Sample Test Date`,
+           `NXC_COLLECTION_DATE`, `NXC_COLLECTION_TIME_INTERVAL`,
+           `DATE_RECEIVED`, `Sample Test Date`,
            `Test Name`, VALUE, UNIT, LLOQ, ULOQ, ULOQU, NOTES
     ) |>
     rename(
@@ -180,6 +181,7 @@ DTA <- function (
       `Visit Name` = `NXC_TREATMENT`,
       `Sample Type` = `NXC_MATRIX`,
       `Sample Collection Date` = `NXC_COLLECTION_DATE`,
+      `Sample Collection Time Interval` = `NXC_COLLECTION_TIME_INTERVAL`, 
       `Nextcea Received Date` = `DATE_RECEIVED`,
       `Test Result` = VALUE,
       `Test Result Unit` = UNIT,
