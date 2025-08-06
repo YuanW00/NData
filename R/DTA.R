@@ -200,7 +200,7 @@ DTA <- function (
     final_DTA <- final_DTA |>
       select(`Nextcea Sample ID`, `Study ID`, `Sponsor Sample ID`, `Sponsor Sample Barcode`,
              `Subject ID`, Gender, Group, `Visit Name`, `Sample Type`,
-             `Sample Collection Date`, `Nextcea Received Date`,
+             `Sample Collection Date`, `Sample Collection Time Interval`, `Nextcea Received Date`,
              `Sample Test Date`, `Test Name`, `Test Result`, `Test Result Unit`,
              `Lab Test LLOQ`, `Lab Test ULOQ`, `LLOQ/ULOQ Units`, Comments)
   } else if (version == "user-defined") {
