@@ -171,6 +171,10 @@ DTA <- function (
            `DATE_RECEIVED`, `Sample Test Date`,
            `Test Name`, VALUE, UNIT, LLOQ, ULOQ, ULOQU, NOTES
     ) |>
+    mutate(
+      `Sample Collection Date` = format(as.Date(`NXC_COLLECTION_DATE`), "%m/%d/%Y"),
+      `Nextcea Received Date` = format(as.Date(`DATE_RECEIVED`), "%m/%d/%Y")
+    ) |>
     rename(
       `Nextcea Sample ID` = `NXC_SAMPLE_INDEX`,
       `Sponsor Sample ID` = NXC_SPONSOR_SAMPLE_ID,
@@ -180,9 +184,9 @@ DTA <- function (
       `Group` = `NXC_GROUP`,
       `Visit Name` = `NXC_TREATMENT`,
       `Sample Type` = `NXC_MATRIX`,
-      `Sample Collection Date` = `NXC_COLLECTION_DATE`,
-      `Sample Collection Time Interval` = `NXC_COLLECTION_TIME_INTERVAL`, 
-      `Nextcea Received Date` = `DATE_RECEIVED`,
+      # `Sample Collection Date` = `NXC_COLLECTION_DATE`,
+      `Sample Collection Time Interval` = `NXC_COLLECTION_TIME_INTERVAL`,
+      # `Nextcea Received Date` = `DATE_RECEIVED`,
       `Test Result` = VALUE,
       `Test Result Unit` = UNIT,
       `Lab Test LLOQ` = LLOQ,
@@ -227,8 +231,8 @@ DTA <- function (
     cols <- c("Nextcea Sample ID", "Study ID", "Sponsor Sample ID",
               "Sponsor Sample Barcode", "Subject ID", "Gender", "Group",
               "Visit Name", "Sample Type", "Sample Collection Date",
-              "Sample Collection Time Interval", 
-              "Nextcea Received Date", "Sample Test Date", col_convert_expanded, 
+              "Sample Collection Time Interval",
+              "Nextcea Received Date", "Sample Test Date", col_convert_expanded,
               "Comments"
     )
 
