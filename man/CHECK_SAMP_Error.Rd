@@ -4,7 +4,15 @@
 \alias{CHECK_SAMP_Error}
 \title{DTA Error Check}
 \usage{
-CHECK_SAMP_Error(format, data, exp_cols)
+CHECK_SAMP_Error(
+  format,
+  data,
+  exp_cols,
+  lloq_opt,
+  lloq = NA,
+  uloq = NA,
+  ulunit = NA
+)
 }
 \arguments{
 \item{format}{The format of DTA data}
