@@ -10,69 +10,46 @@
 #' @examples
 #' CHECK_SAMP_Error(data);
 #' @export
-CHECK_SAMP_Error <- function (format, data) {
+CHECK_SAMP_Error <- function (format, data, exp_cols) {
+
+  # Expected Analyte
+  ea_df <- data %>%
+    distinct(across(all_of(exp_cols)))
+
   if (format == "landscape") {
-    # Expected Analytes
-    ea_cols <- c("Sample Type",
-                 paste0("Test Name ", seq(1:15)),
-                 paste0("Test Result Unit ", seq(1:15)),
-                 paste0("Lab Test LLOQ ", seq(1:15)),
-                 paste0("Lab Test ULOQ ", seq(1:15)),
-                 paste0("LLOQ/ULOQ Units ", seq(1:15))
-    )
-    ea_df <- data |>
-      distinct(across(intersect(ea_cols, colnames(data))))
-
     # BQL
-    test_cols <- names(data)
-    test_nums <- test_cols[str_detect(test_cols, "^Test Name ")] %>%
-      str_extract("\\d+") %>%
-      as.integer() %>%
-      na.omit() %>%
-      sort()
-    max_test <- ifelse(length(test_nums) == 0, 0, max(test_nums))
-
-    bql_conditions <- lapply(1:15, function(i) {
-      unit_col   <- sym(paste0("Test Result Unit ", i))
-      lloq_col   <- sym(paste0("Lab Test LLOQ ", i))
-      uloq_col   <- sym(paste0("Lab Test ULOQ ", i))
-      ref_unit   <- sym(paste0("LLOQ/ULOQ Units ", i))
-      result_col <- sym(paste0("Test Result ", i))
-
-      expr(
-        (!!unit_col != !!ref_unit) |
-          ((!!unit_col == !!ref_unit) & (!!result_col < !!lloq_col)) |
-          ((!!unit_col == !!ref_unit) & (!!result_col > !!uloq_col))
+    long_df <- data %>%
+      pivot_longer(
+        cols = matches(" (Result|LLOQ|ULOQ)$"),
+        names_to  = c("Analyte", "Metric"),
+        names_pattern = "^(.*) (Result|LLOQ|ULOQ)$",
+        values_to = "Value"
       )
-    })
 
-    bql_conditions <- lapply(1:max_test, function(i) {
-      unit_col   <- sym(paste0("Test Result Unit ", i))
-      lloq_col   <- sym(paste0("Lab Test LLOQ ", i))
-      uloq_col   <- sym(paste0("Lab Test ULOQ ", i))
-      ref_unit   <- sym(paste0("LLOQ/ULOQ Units ", i))
-      result_col <- sym(paste0("Test Result ", i))
-
-      expr(
-        (!!unit_col != !!ref_unit) |
-          ((!!unit_col == !!ref_unit) & (!!result_col < !!lloq_col)) |
-          ((!!unit_col == !!ref_unit) & (!!result_col > !!uloq_col))
+    wide_df <- long_df %>%
+      pivot_wider(
+        names_from  = Metric,
+        values_from = Value
+      ) %>%
+      mutate(
+        Result = as.numeric(Result),
+        LLOQ   = as.numeric(LLOQ),
+        ULOQ   = as.numeric(ULOQ)
       )
-    })
 
-    final_condition <- purrr::reduce(bql_conditions, function(x, y) expr((!!x) | (!!y)))
-
-    bql <- data %>%
-      rowwise() %>%
-      filter(eval_tidy(final_condition)) %>%
-      ungroup()
+    bql <- wide_df %>%
+      mutate(
+        Range_Status = case_when(
+          is.na(Result) | is.na(LLOQ) | is.na(ULOQ) ~ "Missing Value",
+          Result < LLOQ ~ "Below LLOQ",
+          Result > ULOQ ~ "Above ULOQ",
+          TRUE          ~ "Within Range"
+        )
+      ) %>%
+      filter(Status %in% c("Below LLOQ", "Above ULOQ", "Missing Value")) |>
+      select(-Analyte, -Result, -LLOQ, -ULOQ)
 
   } else if (format == "vertical") {
-
-    # Expected Analyte
-    ea_df <- data |>
-      distinct(`Sample Type`, `Test Name`, `Test Result Unit`, `Lab Test LLOQ`,
-               `Lab Test ULOQ`, `LLOQ/ULOQ Units`)
     # BQL
     bql <- data |>
       filter(`Test Result Unit` != `LLOQ/ULOQ Units`|
@@ -87,3 +64,57 @@ CHECK_SAMP_Error <- function (format, data) {
 
   return(result)
 }
+
+
+# data <- read_xlsx("C:/Users/YuanWang/Downloads/NP587_DTA (1).xlsx")
+# exp_cols <- c(
+#   "Sample Type",
+#   "Total di-22:6 BMP Result Unit",
+#   "Total di-22:6 BMP LLOQ",
+#   "Total di-22:6 BMP ULOQ",
+#   "Total di-22:6 BMP LLOQ/ULOQ Units",
+#   "Creatinine Result Unit",
+#   "Creatinine LLOQ",
+#   "Creatinine ULOQ",
+#   "Creatinine LLOQ/ULOQ Units",
+#   "Normalized Total di-22:6 BMP Result Unit",
+#   "Normalized Total di-22:6 BMP LLOQ",
+#   "Normalized Total di-22:6 BMP ULOQ",
+#   "Normalized Total di-22:6 BMP LLOQ/ULOQ Units"
+# )
+# ea_df <- data %>%
+#   distinct(across(all_of(exp_cols)))
+#
+# long_df <- data %>%
+#   pivot_longer(
+#     cols = matches(" (Result|LLOQ|ULOQ)$"),  # 只抓这三类列
+#     names_to  = c("Analyte", "Metric"),      # 拆成两部分
+#     names_pattern = "^(.*) (Result|LLOQ|ULOQ)$",
+#     values_to = "Value"
+#   )
+#
+# wide_df <- long_df %>%
+#   pivot_wider(
+#     names_from  = Metric,  # Result / LLOQ / ULOQ
+#     values_from = Value
+#   ) %>%
+#   mutate(
+#     Result = as.numeric(Result),
+#     LLOQ   = as.numeric(LLOQ),
+#     ULOQ   = as.numeric(ULOQ)
+#   )
+#
+# # 4. 标记是否在范围内
+# wide_flagged <- wide_df %>%
+#   mutate(
+#     Range_Status = case_when(
+#       is.na(Result) | is.na(LLOQ) | is.na(ULOQ) ~ NA_character_,
+#       Result < LLOQ ~ "Below LLOQ",
+#       Result > ULOQ ~ "Above ULOQ",
+#       TRUE          ~ "Within Range"
+#     )
+#   )
+#
+# # 5. 取出“Result 不在 LLOQ/ULOQ 范围内”的行
+# out_of_range <- wide_flagged %>%
+#   filter(Range_Status %in% c("Below LLOQ", "Above ULOQ"))

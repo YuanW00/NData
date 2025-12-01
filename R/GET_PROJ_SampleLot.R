@@ -44,7 +44,7 @@ GET_PROJ_SampleLot <- function (site, project = "NP237", username, password) {
         filter(Active == TRUE) |>
         select(-any_of(c("EntityTypeName", "Id", "Sequence", "Created",
                          "Modified", "Active", "LikedBy", "FollowedBy",
-                         "Locked", "CI_LOT_NUM", "COLUMN_STATUS",
+                         "Locked", "CI_LOT_NUM",
                          "CATALOG_NUMBER", "COMPANY_NAME",
                          "SUPPLEMENTAL_DOC_1_ANNOTATIONS",
                          "SUPPLEMENTAL_DOC_2_ANNOTATIONS", "COMMENTS",

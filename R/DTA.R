@@ -169,7 +169,7 @@ DTA <- function (
            `NXC_GROUP`, `NXC_TREATMENT`, `NXC_MATRIX`,
            `NXC_COLLECTION_DATE`, `NXC_COLLECTION_TIME_INTERVAL`,
            `DATE_RECEIVED`, `Sample Test Date`,
-           `Test Name`, VALUE, UNIT, LLOQ, ULOQ, ULOQU, NOTES
+           `Test Name`, VALUE, UNIT, LLOQ, ULOQ, ULOQU, COLUMN_STATUS
     ) |>
     mutate(
       `Sample Collection Date` = format(as.Date(`NXC_COLLECTION_DATE`), "%m/%d/%Y"),
@@ -192,7 +192,7 @@ DTA <- function (
       `Lab Test LLOQ` = LLOQ,
       `Lab Test ULOQ` = ULOQ,
       `LLOQ/ULOQ Units` = ULOQU,
-      `Comments` = NOTES
+      `Comments` = COLUMN_STATUS
     )
 
   if (version == "basic") {
