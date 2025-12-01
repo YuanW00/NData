@@ -20,6 +20,14 @@ CHECK_SAMP_Error(
 \item{data}{The data frame after data transfer}
 
 \item{exp_cols}{The columns match to sample type, analyte, unit, LLOQ/ULOQ}
+
+\item{lloq_opt}{Need to input LLOW/ULOQ Value}
+
+\item{lloq}{LLOQ Value}
+
+\item{uloq}{ULOQ Value}
+
+\item{ulunit}{LLOQ/ULOQ Unit}
 }
 \value{
 Return data frames with expected analytes and BQL values

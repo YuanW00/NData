@@ -7,11 +7,16 @@
 #' @param format The format of DTA data
 #' @param data The data frame after data transfer
 #' @param exp_cols The columns match to sample type, analyte, unit, LLOQ/ULOQ
+#' @param lloq_opt Need to input LLOW/ULOQ Value
+#' @param lloq LLOQ Value
+#' @param uloq ULOQ Value
+#' @param ulunit LLOQ/ULOQ Unit
 #' @return Return data frames with expected analytes and BQL values
 #' @examples
 #' CHECK_SAMP_Error(data);
 #' @export
-CHECK_SAMP_Error <- function (format, data, exp_cols, lloq_opt, lloq = NA, uloq = NA, ulunit = NA) {
+CHECK_SAMP_Error <- function (format, data, exp_cols, lloq_opt,
+                              lloq = NA, uloq = NA, ulunit = NA) {
 
   # Expected Analyte
   ea_df <- data %>%
@@ -60,7 +65,7 @@ CHECK_SAMP_Error <- function (format, data, exp_cols, lloq_opt, lloq = NA, uloq 
                  `Test Result Unit` == ulunit & `Test Result` > uloq)
     }
 
-  } else if (lloq == FALSE) {
+  } else if (lloq_opt == FALSE) {
     if (format == "landscape") {
       # BQL
       long_df <- data %>%
@@ -103,8 +108,7 @@ CHECK_SAMP_Error <- function (format, data, exp_cols, lloq_opt, lloq = NA, uloq 
     }
   } else {
 
-    ea_df <- "Not avaliable"
-    bql <- "Not avaliable"
+    bql <- data.frame(Status = "Not avaliable")
 
   }
 
