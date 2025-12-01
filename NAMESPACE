@@ -3,6 +3,7 @@
 export(CALCULATE_DF)
 export(CHECK_SAMP_ConDup)
 export(CHECK_SAMP_Error)
+export(CHECK_SAMP_Error_copy)
 export(CREATE_ENETITY_AttrValue)
 export(DTA)
 export(GET_LCMS_SampleBarcodes)

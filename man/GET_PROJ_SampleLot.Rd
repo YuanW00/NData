@@ -4,7 +4,7 @@
 \alias{GET_PROJ_SampleLot}
 \title{Sample Lot Query}
 \usage{
-GET_PROJ_SampleLot(site, project, username, password)
+GET_PROJ_SampleLot(site, project = "NP237", username, password)
 }
 \arguments{
 \item{site}{The PFS version need to work on: "Test" or "Production"}

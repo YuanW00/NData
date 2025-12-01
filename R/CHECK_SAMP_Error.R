@@ -6,6 +6,7 @@
 #' @import rlang
 #' @param format The format of DTA data
 #' @param data The data frame after data transfer
+#' @param exp_cols The columns match to sample type, analyte, unit, LLOQ/ULOQ
 #' @return Return data frames with expected analytes and BQL values
 #' @examples
 #' CHECK_SAMP_Error(data);

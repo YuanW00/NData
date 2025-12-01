@@ -10,7 +10,7 @@
 #' @examples
 #' CHECK_SAMP_Error(data);
 #' @export
-CHECK_SAMP_Error <- function (format, data) {
+CHECK_SAMP_Error_copy <- function (format, data) {
   if (format == "landscape") {
     # Expected Analytes
     ea_cols <- c("Sample Type",
