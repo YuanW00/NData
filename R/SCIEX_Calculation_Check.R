@@ -11,7 +11,7 @@ SCIEX_Calculation_Check <- function(
     standard_file,
     test_file) {
   standard <- read.table(standard_file, sep = "\t")
-  standard <- standard[, 1]
+  # standard <- standard[, 1]
   test <- read.table(test_file, sep = "\t")
   if (identical(standard, test)) {
     result <- list(
@@ -25,8 +25,12 @@ SCIEX_Calculation_Check <- function(
     result <- list(
       message = "Test file is different from the standard.",
       diff = rbind(
-        data.frame(Source = "Standard", Rows = which(rowwise_result==FALSE), Formula = standard[!rowwise_result, ]$V2),
-        data.frame(Source = "Test", Rows = which(!rowwise_result), Formula = test[!rowwise_result, ]$V2)
+        data.frame(Source = "Standard",
+                   Rows = which(rowwise_result==FALSE),
+                   Formula = standard[!rowwise_result, ]$V2),
+        data.frame(Source = "Test",
+                   Rows = which(!rowwise_result),
+                   Formula = test[!rowwise_result, ]$V2)
       )
     )
   }
