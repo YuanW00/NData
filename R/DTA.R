@@ -74,7 +74,8 @@ DTA <- function (
     select(sample_prefix, everything())
   expanded_data$sample_prefix <- as.character(expanded_data$sample_prefix)
 
-  sample_lot <- GET_PROJ_SampleLot(site, project, username, password)
+  sample_lot <- GET_PROJ_SampleLot(site, project, username, password) |>
+    filter(PROJECT_Barcode == project)
   message1 <- paste0("Total number of sample lot list: ", length(sample_lot$NXC_SAMPLE_INDEX))
 
   sample_lot <- sample_lot |>
