@@ -133,7 +133,7 @@ DTA <- function (
     )) |>
     select(-c(duplicate, is103))
 
-  client <- sub("_.*", "", unique(sample_lot$PROJECT_Name))
+  client <- unique(sub("_.*", "", unique(sample_lot$PROJECT_Name)))
   test_name <- unique(data_long$`Test Name`)
   species <- unique(sample_lot$NXC_SPECIES)
 
