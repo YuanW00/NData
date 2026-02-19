@@ -22,7 +22,7 @@
 DTA <- function (
     study_id, format = "landscape", version = "basic",
     site, project, username, password,
-    column_choice = c("Study ID", "Sponsor Sample ID",
+    column_choice = c("Nextcea Sample ID", "Study ID", "Sponsor Sample ID",
                       "Subject ID", "Visit Name", "Sample Type",
                       "Sample Test Date", "Test Name", "Test Result",
                       "Test Result Unit", "Comments")
@@ -198,7 +198,7 @@ DTA <- function (
 
   if (version == "basic") {
     final_DTA <- final_DTA |>
-      select(`Study ID`, `Sponsor Sample ID`, `Subject ID`,
+      select("Nextcea Sample ID", `Study ID`, `Sponsor Sample ID`, `Subject ID`,
              `Visit Name`, `Sample Type`, `Sample Test Date`,
              `Test Name`, `Test Result`, `Test Result Unit`, Comments)
   } else if (version == "plus") {
@@ -210,7 +210,7 @@ DTA <- function (
              `Lab Test LLOQ`, `Lab Test ULOQ`, `LLOQ/ULOQ Units`, Comments)
   } else if (version == "user-defined") {
     final_DTA <- final_DTA |>
-      select(any_of(column_choice))
+      select("Nextcea Sample ID", any_of(column_choice))
   }
 
   message_result <- "Processing complete. Results are displayed below."
